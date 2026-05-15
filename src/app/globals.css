@@ -228,4 +228,71 @@
   .cr-concert-card__artist { font-size: 26px; font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; }
   .cr-concert-card__venue { font-size: 14px; color: rgba(255, 255, 255, 0.85); margin-top: 8px; }
   .cr-concert-card__time { font-size: 12px; color: var(--color-text-muted); margin-top: 2px; letter-spacing: 0.04em; }
+
+  /* ============================================================
+     Landing page
+     ============================================================ */
+  .cr-hero { position: relative; min-height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+  .cr-hero__bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(circle at 20% 0%, #ff2e88 0%, transparent 45%),
+      radial-gradient(circle at 80% 30%, #1db954 0%, transparent 50%),
+      radial-gradient(circle at 50% 100%, #5b3ff5 0%, transparent 55%),
+      var(--color-bg);
+    filter: blur(40px); transform: scale(1.1);
+  }
+  .cr-hero__overlay {
+    position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(180deg, rgba(10, 10, 10, 0) 0%, rgba(10, 10, 10, 0.9) 80%, var(--color-bg) 100%);
+  }
+  .cr-hero__content {
+    position: relative; z-index: 2; flex: 1;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 48px 0 64px;
+  }
+  .cr-hero__top { display: flex; align-items: center; justify-content: space-between; }
+  .cr-hero__logo { font-weight: 900; font-size: 18px; letter-spacing: -0.02em; display: flex; gap: 8px; align-items: center; }
+  .cr-hero__logo::before {
+    content: ""; width: 12px; height: 12px;
+    background: var(--color-spotify); border-radius: 50%;
+    box-shadow: 0 0 16px var(--color-spotify);
+  }
+  .cr-hero__meta {
+    font-size: 12px; color: var(--color-text-muted);
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .cr-hero__title {
+    font-weight: 900;
+    font-size: var(--text-hero);
+    line-height: 0.88; letter-spacing: -0.06em; text-transform: uppercase;
+    max-width: 1100px;
+  }
+  .cr-hero__title .word--accent { color: var(--color-spotify); }
+  .cr-hero__title .word--outline { -webkit-text-stroke: 2px var(--color-text); color: transparent; }
+  .cr-hero__title .word--magenta { color: var(--color-magenta); }
+  .cr-hero__sub { font-size: 20px; color: var(--color-text-muted); max-width: 560px; margin-top: 32px; line-height: 1.5; }
+  .cr-hero__cta-row { display: flex; align-items: center; gap: 24px; margin-top: 48px; flex-wrap: wrap; }
+  .cr-hero__legal { font-size: 12px; color: var(--color-text-dim); }
+
+  .cr-value-props { position: relative; z-index: 2; padding: 96px 0 128px; border-top: 1px solid var(--color-border); }
+  .cr-value-props__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+  @media (max-width: 768px) { .cr-value-props__grid { grid-template-columns: 1fr; } }
+  .cr-vp { padding: 32px; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: rgba(30, 30, 30, 0.4); backdrop-filter: blur(8px); }
+  .cr-vp__num {
+    font-weight: 900; font-size: 80px; line-height: 0.8; letter-spacing: -0.04em;
+    -webkit-text-stroke: 1px var(--color-text); -webkit-text-fill-color: transparent;
+  }
+  .cr-vp--1 .cr-vp__num { color: var(--color-spotify); -webkit-text-fill-color: var(--color-spotify); -webkit-text-stroke: 0; }
+  .cr-vp--2 .cr-vp__num { color: var(--color-magenta); -webkit-text-fill-color: var(--color-magenta); -webkit-text-stroke: 0; }
+  .cr-vp--3 .cr-vp__num { color: var(--color-cyan); -webkit-text-fill-color: var(--color-cyan); -webkit-text-stroke: 0; }
+  .cr-vp__title { font-size: 18px; font-weight: 700; margin-top: 12px; }
+  .cr-vp__desc { font-size: 15px; color: var(--color-text-muted); margin-top: 8px; line-height: 1.55; }
+
+  .cr-ticker { position: relative; z-index: 2; padding: 32px 0; border-top: 1px solid var(--color-border); overflow: hidden;
+    mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%); }
+  .cr-ticker__inner { display: flex; gap: 48px; white-space: nowrap; animation: cr-scroll 40s linear infinite; }
+  .cr-ticker__item { font-weight: 800; font-size: 28px; letter-spacing: -0.02em; color: var(--color-text-muted); display: flex; align-items: center; gap: 48px; }
+  .cr-ticker__dot { width: 8px; height: 8px; background: var(--color-spotify); border-radius: 50%; flex: 0 0 auto; }
+  @keyframes cr-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 }

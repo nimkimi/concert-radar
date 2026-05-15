@@ -1,94 +1,82 @@
-// Temporary design-system render check. Issue #5 will replace this
-// file with the real landing page.
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth/nextauth";
+import { SignInButton } from "@/components/SignInButton";
 
-import { AppNav } from "@/components/AppNav";
-import { Button } from "@/components/Button";
-import { Chip } from "@/components/Chip";
-import { ConcertCard } from "@/components/ConcertCard";
-import { SourceBadge } from "@/components/SourceBadge";
+const ARTISTS = [
+  "SIGUR RÓS",
+  "AURORA",
+  "THE 1975",
+  "RØYKSOPP",
+  "TAME IMPALA",
+  "PHOEBE BRIDGERS",
+  "HONNINGBARNA",
+  "KING KRULE",
+];
 
-export default function Home() {
+export default async function LandingPage() {
+  const session = await auth();
+  if (session?.user) redirect("/dashboard");
+
   return (
     <>
-      <AppNav activeHref="/dashboard" userName="Kristoffer" />
-      <main className="cr-frame py-12 flex flex-col gap-10">
-        <header>
-          <p className="text-[11px] uppercase tracking-[0.2em] font-bold text-(--color-spotify) mb-3">
-            Design system · render check
-          </p>
-          <h1
-            className="font-black uppercase leading-[0.85] tracking-[-0.05em]"
-            style={{ fontSize: "var(--text-display)" }}
-          >
-            Festival-poster
-            <br />
-            <span className="text-(--color-spotify)">maximalism</span>.
-          </h1>
-        </header>
-
-        <section className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold">Buttons</h2>
-          <div className="flex gap-3 flex-wrap items-center">
-            <Button variant="spotify">Connect with Spotify</Button>
-            <Button variant="primary">Primary</Button>
-            <Button variant="ghost">Ghost</Button>
-            <Button variant="danger">Danger</Button>
+      <section className="cr-hero">
+        <div className="cr-hero__bg" />
+        <div className="cr-hero__overlay" />
+        <div className="cr-frame cr-hero__content">
+          <div className="cr-hero__top">
+            <div className="cr-hero__logo">CONCERT RADAR</div>
+            <div className="cr-hero__meta">v0.1 mvp</div>
           </div>
-        </section>
-
-        <section className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold">Chips</h2>
-          <div className="flex gap-2 flex-wrap">
-            <Chip>Default</Chip>
-            <Chip variant="accent">Within 100km</Chip>
-            <Chip>This weekend</Chip>
+          <div>
+            <h1 className="cr-hero__title">
+              NEVER <span className="word--outline">MISS</span>
+              <br />
+              <span className="word--accent">A CONCERT</span>{" "}
+              <span className="word--magenta">AGAIN.</span>
+            </h1>
+            <p className="cr-hero__sub">
+              Connect Spotify, set your city, and we&apos;ll alert you when your artists announce shows nearby. Ticketmaster and Bandsintown — all in one feed.
+            </p>
+            <div className="cr-hero__cta-row">
+              <SignInButton />
+              <span className="cr-hero__legal">No password. Spotify is your login.</span>
+            </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold">Source badges</h2>
-          <div className="flex gap-2 flex-wrap">
-            <SourceBadge source="TICKETMASTER" />
-            <SourceBadge source="BANDSINTOWN" />
-            <SourceBadge source="SONGKICK" />
-            <SourceBadge source="BILLETTO" />
-            <SourceBadge source="TICKETMASTER" size="full" />
+      <section className="cr-value-props">
+        <div className="cr-frame">
+          <div className="cr-value-props__grid">
+            <div className="cr-vp cr-vp--1">
+              <div className="cr-vp__num">01</div>
+              <div className="cr-vp__title">Connect Spotify</div>
+              <p className="cr-vp__desc">We read your top + followed artists. No password, no separate account, no spam.</p>
+            </div>
+            <div className="cr-vp cr-vp--2">
+              <div className="cr-vp__num">02</div>
+              <div className="cr-vp__title">Set your city</div>
+              <p className="cr-vp__desc">Pick Bergen, Oslo, anywhere — and choose how far you&apos;ll travel: 25, 50, 100km, or Norway+Nordics.</p>
+            </div>
+            <div className="cr-vp cr-vp--3">
+              <div className="cr-vp__num">03</div>
+              <div className="cr-vp__title">Get notified</div>
+              <p className="cr-vp__desc">Daily digest or instant email when your artists announce a show in your radius.</p>
+            </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="flex flex-col gap-4 pb-20">
-          <h2 className="text-xl font-bold">Concert card</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <ConcertCard
-              imageUrl="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=800"
-              artistName="Aurora"
-              venueName="USF Verftet"
-              city="Bergen"
-              time="Fri Jun 14 · 21:00 CET"
-              distanceLabel="2.3 km"
-              sources={["TICKETMASTER", "BANDSINTOWN"]}
-            />
-            <ConcertCard
-              imageUrl="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800"
-              artistName="Honningbarna"
-              venueName="Røkeriet"
-              city="Bergen"
-              time="Fri Jun 14 · 22:30"
-              distanceLabel="0.8 km"
-              sources={["BANDSINTOWN"]}
-            />
-            <ConcertCard
-              imageUrl="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800"
-              artistName="Røyksopp"
-              venueName="Sentrum Scene"
-              city="Oslo"
-              time="Sat Jun 22 · 20:00 CET"
-              distanceLabel="312 km"
-              sources={["TICKETMASTER"]}
-            />
-          </div>
-        </section>
-      </main>
+      <div className="cr-ticker">
+        <div className="cr-ticker__inner">
+          {[...ARTISTS, ...ARTISTS].map((name, i) => (
+            <span key={i} className="cr-ticker__item">
+              {name}
+              <span className="cr-ticker__dot" />
+            </span>
+          ))}
+        </div>
+      </div>
     </>
   );
 }
