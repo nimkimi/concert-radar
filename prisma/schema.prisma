@@ -1,13 +1,174 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// Concert Radar database schema
+// Source of truth for tables: SPEC.md data model + 2026-05-15 addendum.
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// User
+// ============================================================
+model User {
+  id                    String                @id @default(cuid())
+  spotifyId             String                @unique
+  email                 String
+  name                  String
+  avatarUrl             String?
+  cityName              String?
+  latitude              Float?
+  longitude             Float?
+  radiusKm              Int                   @default(50)
+  notificationsEnabled  Boolean               @default(true)
+  notificationFrequency NotificationFrequency @default(DAILY_DIGEST)
+  lastArtistSyncAt      DateTime?
+  lastConcertSyncAt     DateTime?
+  createdAt             DateTime              @default(now())
+
+  accounts       Account[]
+  sessions       Session[]
+  trackedArtists TrackedArtist[]
+  notifications  NotificationLog[]
+}
+
+enum NotificationFrequency {
+  INSTANT
+  DAILY_DIGEST
+}
+
+// ============================================================
+// NextAuth — Account, Session, VerificationToken
+// access_token / refresh_token are stored as ENCRYPTED ciphertext
+// by the custom adapter in src/lib/auth/encrypted-adapter.ts (issue #4).
+// ============================================================
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ============================================================
+// TrackedArtist
+// ============================================================
+model TrackedArtist {
+  id              String   @id @default(cuid())
+  userId          String
+  spotifyArtistId String
+  name            String
+  imageUrl        String?
+  genres          String   @default("")
+  isExcluded      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, spotifyArtistId])
+}
+
+// ============================================================
+// Concert — shared across users.
+// (externalId, source) is unique to prevent same-source duplicates.
+// Cross-source dedup is done at query time, not in the schema.
+// ============================================================
+model Concert {
+  id            String        @id @default(cuid())
+  externalId    String
+  source        Source
+  artistName    String
+  venueName     String
+  venueCity     String
+  venueCountry  String        @default("NO")
+  venueTimezone String        @default("Europe/Oslo")
+  latitude      Float?
+  longitude     Float?
+  eventDate     DateTime
+  ticketUrl     String?
+  status        ConcertStatus @default(UPCOMING)
+  createdAt     DateTime      @default(now())
+
+  notifications NotificationLog[]
+
+  @@unique([externalId, source])
+}
+
+enum Source {
+  TICKETMASTER
+  BANDSINTOWN
+  SONGKICK
+  BILLETTO
+}
+
+enum ConcertStatus {
+  UPCOMING
+  CANCELLED
+  POSTPONED
+}
+
+// ============================================================
+// NotificationLog — one row per (user, concert) ever sent.
+// Used to prevent re-sending the same concert to the same user.
+// ============================================================
+model NotificationLog {
+  id        String   @id @default(cuid())
+  userId    String
+  concertId String
+  sentAt    DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  concert Concert @relation(fields: [concertId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, concertId])
+}
+
+// ============================================================
+// SyncLog — per-source, per-run health for the daily cron.
+// On failure: row with status=FAIL + errorMessage; sync continues
+// with other sources.
+// ============================================================
+model SyncLog {
+  id            String     @id @default(cuid())
+  source        Source
+  status        SyncStatus
+  errorMessage  String?
+  ranAt         DateTime   @default(now())
+  durationMs    Int
+  concertsFound Int        @default(0)
+}
+
+enum SyncStatus {
+  OK
+  FAIL
 }
