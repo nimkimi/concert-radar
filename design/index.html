@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Concert Radar — Design mocks</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="style.css">
+<style>
+  .index { min-height: 100vh; padding: var(--s-9) 0; }
+  .index__head { padding-bottom: var(--s-8); }
+  .index__kicker { font-size: var(--type-overline); text-transform: uppercase; letter-spacing: 0.2em; color: var(--spotify); font-weight: 700; margin-bottom: var(--s-4); }
+  .index__title { font-size: clamp(56px, 9vw, 140px); font-weight: 900; line-height: 0.85; letter-spacing: -0.05em; text-transform: uppercase; }
+  .index__title .accent { color: var(--spotify); }
+  .index__sub { font-size: 18px; color: var(--text-muted); max-width: 720px; margin-top: var(--s-5); line-height: 1.5; }
+
+  .mock-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-5); padding-bottom: var(--s-8); }
+  .mock { display: block; border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--s-5); transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out); background: var(--surface); }
+  .mock:hover { transform: translateY(-3px); border-color: var(--spotify); }
+  .mock__num { font-size: 11px; color: var(--text-dim); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; }
+  .mock__title { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; margin-top: var(--s-3); }
+  .mock__route { font-family: ui-monospace, monospace; font-size: 13px; color: var(--spotify-bright); margin-top: var(--s-2); }
+  .mock__desc { font-size: 14px; color: var(--text-muted); margin-top: var(--s-3); line-height: 1.5; }
+
+  .footer-link { display: inline-block; padding: var(--s-3) var(--s-5); border: 1px solid var(--border-strong); border-radius: var(--r-pill); font-size: 14px; font-weight: 600; }
+  .footer-link:hover { border-color: var(--spotify); color: var(--spotify); }
+</style>
+</head>
+<body>
+
+<main class="frame index">
+
+  <div class="index__head">
+    <div class="index__kicker">Concert Radar · Design mocks · 2026-05-15</div>
+    <h1 class="index__title">Festival-poster<br><span class="accent">maximalism</span>.</h1>
+    <p class="index__sub">Dark-only Spotify-companion built around oversized display type, source-coded gradients, and full-bleed artist imagery. Five screens, one shared style sheet, one tokens doc. Click into any mock to preview it standalone.</p>
+  </div>
+
+  <section class="mock-grid">
+    <a class="mock" href="landing.html">
+      <div class="mock__num">01 / Landing</div>
+      <div class="mock__title">Connect with Spotify</div>
+      <div class="mock__route">/</div>
+      <p class="mock__desc">Hero with hero-scale typography, value props 01·02·03, and a scrolling artist ticker. Single CTA: Spotify OAuth.</p>
+    </a>
+    <a class="mock" href="dashboard.html">
+      <div class="mock__num">02 / Dashboard</div>
+      <div class="mock__title">Upcoming concert feed</div>
+      <div class="mock__route">/dashboard</div>
+      <p class="mock__desc">Sticky oversized date headers, mixed 1/2-wide concert cards, source badges, deduplicated card with two badges, stats strip, and a sync-now control.</p>
+    </a>
+    <a class="mock" href="concert-detail.html">
+      <div class="mock__num">03 / Detail</div>
+      <div class="mock__title">Single concert</div>
+      <div class="mock__route">/dashboard/concerts/[id]</div>
+      <p class="mock__desc">Cinematic artist hero, venue card with map placeholder, source-by-source breakdown, sticky ticket sidebar with NOK price.</p>
+    </a>
+    <a class="mock" href="artists.html">
+      <div class="mock__num">04 / Artists</div>
+      <div class="mock__title">Tracked artists</div>
+      <div class="mock__route">/dashboard/artists</div>
+      <p class="mock__desc">Grid of artist tiles with genre tag, upcoming-show count, exclude toggle, and a re-sync action. Excluded state styling included.</p>
+    </a>
+    <a class="mock" href="settings.html">
+      <div class="mock__num">05 / Settings</div>
+      <div class="mock__title">City · radius · email</div>
+      <div class="mock__route">/dashboard/settings</div>
+      <p class="mock__desc">Sectioned form with sticky side nav, Nominatim-style city autocomplete, radius segmented control, frequency picker, danger zone.</p>
+    </a>
+    <a class="mock" href="design-tokens.md" style="border-style: dashed;">
+      <div class="mock__num">00 / Tokens</div>
+      <div class="mock__title">Design tokens</div>
+      <div class="mock__route">design-tokens.md</div>
+      <p class="mock__desc">Colors, type scale, spacing, radius, motion, source badge colors, and Tailwind theme extension snippet.</p>
+    </a>
+  </section>
+
+  <div style="padding-top: var(--s-6); display: flex; gap: var(--s-3); flex-wrap: wrap;">
+    <a class="footer-link" href="https://github.com/nimkimi/project-ideas/blob/main/projects/concert-radar.md">Spec ↗</a>
+    <a class="footer-link" href="https://github.com/nimkimi/concert-radar">Project repo ↗</a>
+  </div>
+
+</main>
+</body>
+</html>

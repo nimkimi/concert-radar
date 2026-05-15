@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Concert Radar — Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="style.css">
+<style>
+  .page-header { padding: var(--s-7) 0 var(--s-5); display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-5); flex-wrap: wrap; }
+  .page-header__title { font-size: var(--type-display); font-weight: 900; line-height: 0.88; letter-spacing: -0.05em; text-transform: uppercase; max-width: 900px; }
+  .page-header__title .city { color: var(--spotify); }
+  .page-header__title .count { -webkit-text-stroke: 2px var(--text); color: transparent; }
+  .page-header__meta { display: flex; flex-direction: column; align-items: flex-end; gap: var(--s-3); }
+  .page-header__chips { display: flex; gap: var(--s-2); }
+  .sync-row { font-size: 12px; color: var(--text-dim); display: flex; align-items: center; gap: var(--s-3); }
+  .sync-row__dot { width: 6px; height: 6px; background: var(--spotify); border-radius: 50%; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: var(--s-4) 0; margin-bottom: var(--s-7); }
+  .stats__item { padding: 0 var(--s-5); border-right: 1px solid var(--border); }
+  .stats__item:last-child { border-right: none; }
+  .stats__label { font-size: var(--type-overline); text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-dim); font-weight: 600; }
+  .stats__value { font-size: 36px; font-weight: 800; letter-spacing: -0.03em; margin-top: 2px; }
+  .stats__value--green { color: var(--spotify); }
+
+  .date-group { margin-bottom: var(--s-8); }
+  .date-header { display: grid; grid-template-columns: 1fr auto; align-items: end; padding: var(--s-5) 0; position: sticky; top: 64px; z-index: 10; background: linear-gradient(180deg, var(--bg) 70%, transparent); }
+  .date-header__weekday { font-size: var(--type-overline); text-transform: uppercase; letter-spacing: 0.16em; color: var(--text-muted); font-weight: 700; }
+  .date-header__date { font-size: clamp(64px, 9vw, 140px); font-weight: 900; line-height: 0.85; letter-spacing: -0.05em; }
+  .date-header__date .day { color: var(--spotify); }
+  .date-header__date .month { -webkit-text-stroke: 1.5px var(--text); color: transparent; margin-left: 0.05em; }
+  .date-header__right { text-align: right; font-size: 13px; color: var(--text-muted); }
+
+  .concert-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-5); }
+  .concert-card { position: relative; aspect-ratio: 4 / 5; border-radius: var(--r-lg); overflow: hidden; background: var(--surface); box-shadow: var(--shadow-card); cursor: pointer; transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out); }
+  .concert-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+  .concert-card__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform var(--dur-slow) var(--ease-out); }
+  .concert-card:hover .concert-card__img { transform: scale(1.05); }
+  .concert-card__overlay { position: absolute; inset: 0; background: var(--grad-card-overlay); }
+  .concert-card__sources { position: absolute; top: var(--s-4); right: var(--s-4); display: flex; gap: 4px; z-index: 2; }
+  .concert-card__distance { position: absolute; top: var(--s-4); left: var(--s-4); font-size: var(--type-overline); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); padding: 6px 10px; border-radius: var(--r-pill); z-index: 2; }
+  .concert-card__body { position: absolute; left: var(--s-5); right: var(--s-5); bottom: var(--s-5); z-index: 2; }
+  .concert-card__artist { font-size: 26px; font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; }
+  .concert-card__venue { font-size: 14px; color: rgba(255,255,255,0.85); margin-top: var(--s-2); }
+  .concert-card__time { font-size: 12px; color: var(--text-muted); margin-top: 2px; letter-spacing: 0.04em; }
+  .concert-card__cta { position: absolute; right: var(--s-4); bottom: var(--s-4); width: 44px; height: 44px; border-radius: 50%; background: var(--spotify); color: #000; display: grid; place-items: center; opacity: 0; transform: scale(0.8); transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out); z-index: 3; }
+  .concert-card:hover .concert-card__cta { opacity: 1; transform: scale(1); }
+
+  /* tall variant — first card in a group */
+  .concert-card--featured { grid-column: span 2; aspect-ratio: 16 / 10; }
+  .concert-card--featured .concert-card__artist { font-size: 56px; line-height: 0.95; letter-spacing: -0.04em; }
+
+  /* deduped indicator */
+  .concert-card__dedupe-hint { position: absolute; left: var(--s-4); bottom: 100px; z-index: 2; font-size: var(--type-overline); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); background: rgba(0, 229, 255, 0.12); padding: 4px 10px; border-radius: var(--r-pill); border: 1px solid rgba(0, 229, 255, 0.3); }
+
+  /* Filter bar */
+  .filter-bar { display: flex; gap: var(--s-3); align-items: center; margin-bottom: var(--s-6); flex-wrap: wrap; }
+  .filter-bar__label { font-size: var(--type-overline); text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-dim); font-weight: 700; margin-right: var(--s-2); }
+
+  @media (max-width: 1024px) {
+    .concert-grid { grid-template-columns: repeat(2, 1fr); }
+    .concert-card--featured { grid-column: span 2; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<nav class="app-nav">
+  <div class="app-nav__brand">CONCERT RADAR</div>
+  <div class="app-nav__links">
+    <a href="dashboard.html" class="app-nav__link app-nav__link--active">Concerts</a>
+    <a href="artists.html" class="app-nav__link">Artists</a>
+    <a href="settings.html" class="app-nav__link">Settings</a>
+  </div>
+  <div class="app-nav__user">
+    <span style="font-size:13px; color: var(--text-muted);">Kristoffer</span>
+    <div class="app-nav__avatar"></div>
+  </div>
+</nav>
+
+<main class="frame">
+
+  <header class="page-header">
+    <h1 class="page-header__title">
+      <span class="count">23</span><br>
+      upcoming shows near <span class="city">Bergen</span>.
+    </h1>
+    <div class="page-header__meta">
+      <div class="page-header__chips">
+        <span class="chip chip--accent">Within 100km</span>
+      </div>
+      <div class="sync-row">
+        <span class="sync-row__dot"></span>
+        Last synced 14 min ago
+        <button class="btn btn--ghost" style="height: 32px; padding: 0 var(--s-4); font-size: 12px;">⟳ Sync now</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stats__item">
+      <div class="stats__label">Upcoming</div>
+      <div class="stats__value">23</div>
+    </div>
+    <div class="stats__item">
+      <div class="stats__label">This week</div>
+      <div class="stats__value stats__value--green">7</div>
+    </div>
+    <div class="stats__item">
+      <div class="stats__label">Tracked artists</div>
+      <div class="stats__value">68</div>
+    </div>
+    <div class="stats__item">
+      <div class="stats__label">Sources active</div>
+      <div class="stats__value">2/4</div>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <span class="filter-bar__label">Filter</span>
+    <button class="chip chip--accent">All sources</button>
+    <button class="chip">This weekend</button>
+    <button class="chip">Bergen only</button>
+    <button class="chip">Festivals</button>
+  </div>
+
+  <!-- DATE GROUP 1 -->
+  <section class="date-group">
+    <div class="date-header">
+      <div>
+        <div class="date-header__weekday">Friday</div>
+        <div class="date-header__date"><span class="day">14</span><span class="month">JUN</span></div>
+      </div>
+      <div class="date-header__right">3 shows · all in Bergen</div>
+    </div>
+
+    <div class="concert-grid">
+      <article class="concert-card concert-card--featured">
+        <img class="concert-card__img" src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=1200" alt="">
+        <div class="concert-card__overlay"></div>
+        <div class="concert-card__distance">2.3 km away</div>
+        <div class="concert-card__sources">
+          <span class="source-badge source-badge--ticketmaster">TM</span>
+          <span class="source-badge source-badge--bandsintown">BIT</span>
+        </div>
+        <div class="concert-card__dedupe-hint">⚡ 2 sources</div>
+        <div class="concert-card__body">
+          <div class="concert-card__artist">Aurora</div>
+          <div class="concert-card__venue">USF Verftet · Bergen</div>
+          <div class="concert-card__time">21:00 CET · 18+</div>
+        </div>
+        <div class="concert-card__cta">→</div>
+      </article>
+
+      <article class="concert-card">
+        <img class="concert-card__img" src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800" alt="">
+        <div class="concert-card__overlay"></div>
+        <div class="concert-card__distance">0.8 km</div>
+        <div class="concert-card__sources">
+          <span class="source-badge source-badge--bandsintown">BIT</span>
+        </div>
+        <div class="concert-card__body">
+          <div class="concert-card__artist">Honningbarna</div>
+          <div class="concert-card__venue">Røkeriet</div>
+          <div class="concert-card__time">22:30</div>
+        </div>
+        <div class="concert-card__cta">→</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- DATE GROUP 2 -->
+  <section class="date-group">
+    <div class="date-header">
+      <div>
+        <div class="date-header__weekday">Saturday</div>
+        <div class="date-header__date"><span class="day">22</span><span class="month">JUN</span></div>
+      </div>
+      <div class="date-header__right">2 shows · Oslo</div>
+    </div>
+
+    <div class="concert-grid">
+      <article class="concert-card">
+        <img class="concert-card__img" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800" alt="">
+        <div class="concert-card__overlay"></div>
+        <div class="concert-card__distance">312 km</div>
+        <div class="concert-card__sources">
+          <span class="source-badge source-badge--ticketmaster">TM</span>
+        </div>
+        <div class="concert-card__body">
+          <div class="concert-card__artist">Røyksopp</div>
+          <div class="concert-card__venue">Sentrum Scene · Oslo</div>
+          <div class="concert-card__time">20:00 CET</div>
+        </div>
+        <div class="concert-card__cta">→</div>
+      </article>
+
+      <article class="concert-card">
+        <img class="concert-card__img" src="https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=800" alt="">
+        <div class="concert-card__overlay"></div>
+        <div class="concert-card__distance">312 km</div>
+        <div class="concert-card__sources">
+          <span class="source-badge source-badge--ticketmaster">TM</span>
+          <span class="source-badge source-badge--bandsintown">BIT</span>
+        </div>
+        <div class="concert-card__dedupe-hint">⚡ 2 sources</div>
+        <div class="concert-card__body">
+          <div class="concert-card__artist">The 1975</div>
+          <div class="concert-card__venue">Rockefeller Music Hall</div>
+          <div class="concert-card__time">19:30 CET · Sold fast</div>
+        </div>
+        <div class="concert-card__cta">→</div>
+      </article>
+
+      <article class="concert-card">
+        <img class="concert-card__img" src="https://images.unsplash.com/photo-1551722859-d09c1ec8d5fe?w=800" alt="">
+        <div class="concert-card__overlay"></div>
+        <div class="concert-card__distance">312 km</div>
+        <div class="concert-card__sources">
+          <span class="source-badge source-badge--bandsintown">BIT</span>
+        </div>
+        <div class="concert-card__body">
+          <div class="concert-card__artist">Sigur Rós</div>
+          <div class="concert-card__venue">Den Norske Opera</div>
+          <div class="concert-card__time">20:00 CET</div>
+        </div>
+        <div class="concert-card__cta">→</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- DATE GROUP 3 -->
+  <section class="date-group">
+    <div class="date-header">
+      <div>
+        <div class="date-header__weekday">Thursday</div>
+        <div class="date-header__date"><span class="day">04</span><span class="month">JUL</span></div>
+      </div>
+      <div class="date-header__right">1 show</div>
+    </div>
+
+    <div class="concert-grid">
+      <article class="concert-card">
+        <img class="concert-card__img" src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800" alt="">
+        <div class="concert-card__overlay"></div>
+        <div class="concert-card__distance">2.1 km</div>
+        <div class="concert-card__sources">
+          <span class="source-badge source-badge--ticketmaster">TM</span>
+        </div>
+        <div class="concert-card__body">
+          <div class="concert-card__artist">Tame Impala</div>
+          <div class="concert-card__venue">Bergenhus Fortress</div>
+          <div class="concert-card__time">21:00 CEST · Festival</div>
+        </div>
+        <div class="concert-card__cta">→</div>
+      </article>
+    </div>
+  </section>
+
+  <div style="padding: var(--s-8) 0 var(--s-10); text-align: center; color: var(--text-dim); font-size: 14px;">
+    End of feed · increase your radius in <a href="settings.html" style="color: var(--spotify); text-decoration: underline;">settings</a> to see more.
+  </div>
+
+</main>
+</body>
+</html>

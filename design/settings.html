@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings — Concert Radar</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="style.css">
+<style>
+  .page-header { padding: var(--s-7) 0 var(--s-6); }
+  .page-header__title { font-size: var(--type-display); font-weight: 900; line-height: 0.88; letter-spacing: -0.05em; text-transform: uppercase; }
+  .page-header__title .accent { color: var(--spotify); }
+
+  .settings-layout { display: grid; grid-template-columns: 220px 1fr; gap: var(--s-8); padding-bottom: var(--s-10); }
+
+  .settings-side { position: sticky; top: 100px; height: fit-content; display: flex; flex-direction: column; gap: var(--s-1); border-left: 1px solid var(--border); padding-left: var(--s-4); }
+  .settings-side__link { padding: var(--s-2) 0; font-size: 14px; color: var(--text-muted); }
+  .settings-side__link--active { color: var(--text); font-weight: 600; border-left: 2px solid var(--spotify); margin-left: calc(var(--s-4) * -1); padding-left: var(--s-4); }
+
+  .settings-section { padding-bottom: var(--s-7); border-bottom: 1px solid var(--border); margin-bottom: var(--s-7); }
+  .settings-section__title { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
+  .settings-section__desc { font-size: 14px; color: var(--text-muted); margin-top: var(--s-2); margin-bottom: var(--s-5); max-width: 560px; line-height: 1.5; }
+
+  /* CITY input with autocomplete */
+  .city-field { position: relative; max-width: 480px; }
+  .city-input { width: 100%; height: 56px; padding: 0 var(--s-5); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--r-md); color: var(--text); font: 600 18px 'Inter'; outline: none; transition: border-color var(--dur-fast) var(--ease-out); }
+  .city-input:focus { border-color: var(--spotify); }
+  .city-suggestions { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--r-md); overflow: hidden; z-index: 10; }
+  .city-suggestion { display: flex; align-items: center; justify-content: space-between; padding: var(--s-3) var(--s-4); border-top: 1px solid var(--border); cursor: pointer; }
+  .city-suggestion:first-child { border-top: none; }
+  .city-suggestion:hover, .city-suggestion--focus { background: var(--surface-2); }
+  .city-suggestion__name { font-weight: 600; }
+  .city-suggestion__country { font-size: 12px; color: var(--text-muted); }
+
+  /* RADIUS segmented */
+  .radius-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--r-md); overflow: hidden; max-width: 600px; }
+  .radius-opt { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--s-4) var(--s-3); border-right: 1px solid var(--border); cursor: pointer; transition: background var(--dur-fast) var(--ease-out); }
+  .radius-opt:last-child { border-right: none; }
+  .radius-opt__value { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+  .radius-opt__label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-top: 2px; }
+  .radius-opt:hover { background: var(--surface-2); }
+  .radius-opt--active { background: var(--spotify); color: #000; }
+  .radius-opt--active .radius-opt__label { color: rgba(0,0,0,0.7); }
+
+  /* TOGGLE switch */
+  .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: var(--s-4) 0; border-top: 1px solid var(--border); }
+  .toggle-row:first-of-type { border-top: none; }
+  .toggle-row__label { font-size: 16px; font-weight: 600; }
+  .toggle-row__sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+  .toggle { position: relative; width: 52px; height: 30px; background: var(--surface-2); border-radius: var(--r-pill); cursor: pointer; transition: background var(--dur-fast) var(--ease-out); border: 1px solid var(--border-strong); }
+  .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: #fff; border-radius: 50%; transition: transform var(--dur-base) var(--ease-out); }
+  .toggle--on { background: var(--spotify); border-color: var(--spotify); }
+  .toggle--on::after { transform: translateX(22px); }
+
+  /* FREQ toggle */
+  .freq-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--r-md); overflow: hidden; max-width: 480px; }
+  .freq-opt { padding: var(--s-4) var(--s-5); cursor: pointer; transition: background var(--dur-fast) var(--ease-out); border-right: 1px solid var(--border); }
+  .freq-opt:last-child { border-right: none; }
+  .freq-opt__title { font-weight: 700; font-size: 15px; }
+  .freq-opt__desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .freq-opt--active { background: var(--spotify); color: #000; }
+  .freq-opt--active .freq-opt__desc { color: rgba(0,0,0,0.7); }
+
+  /* ACCOUNT row */
+  .account-row { display: flex; align-items: center; gap: var(--s-4); padding: var(--s-5); border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); max-width: 600px; }
+  .account-avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--magenta), var(--spotify)); }
+  .account-name { font-weight: 700; font-size: 17px; }
+  .account-email { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+  .account-spotify { margin-left: auto; font-size: 12px; color: var(--spotify-bright); display: flex; align-items: center; gap: var(--s-2); }
+
+  .danger { padding: var(--s-5); border: 1px solid var(--src-bandsintown); border-radius: var(--r-md); background: rgba(255, 79, 79, 0.06); max-width: 600px; }
+  .danger__title { font-weight: 700; color: var(--src-bandsintown); }
+  .danger__desc { font-size: 13px; color: var(--text-muted); margin-top: var(--s-2); margin-bottom: var(--s-4); line-height: 1.5; }
+
+  @media (max-width: 900px) {
+    .settings-layout { grid-template-columns: 1fr; }
+    .settings-side { position: static; flex-direction: row; flex-wrap: wrap; border-left: none; padding-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="app-nav">
+  <div class="app-nav__brand">CONCERT RADAR</div>
+  <div class="app-nav__links">
+    <a href="dashboard.html" class="app-nav__link">Concerts</a>
+    <a href="artists.html" class="app-nav__link">Artists</a>
+    <a href="settings.html" class="app-nav__link app-nav__link--active">Settings</a>
+  </div>
+  <div class="app-nav__user">
+    <span style="font-size:13px; color: var(--text-muted);">Kristoffer</span>
+    <div class="app-nav__avatar"></div>
+  </div>
+</nav>
+
+<main class="frame">
+
+  <header class="page-header">
+    <h1 class="page-header__title"><span class="accent">Settings</span></h1>
+  </header>
+
+  <div class="settings-layout">
+    <nav class="settings-side">
+      <a class="settings-side__link settings-side__link--active">Location</a>
+      <a class="settings-side__link">Radius</a>
+      <a class="settings-side__link">Notifications</a>
+      <a class="settings-side__link">Account</a>
+      <a class="settings-side__link">Danger zone</a>
+    </nav>
+
+    <div>
+
+      <!-- LOCATION -->
+      <section class="settings-section">
+        <h2 class="settings-section__title">Location</h2>
+        <p class="settings-section__desc">Your home city. We use this to calculate the distance to every concert. Start typing to search; we cover Norway, Sweden, and Denmark.</p>
+        <div class="city-field">
+          <input class="city-input" type="text" value="Bergen">
+          <div class="city-suggestions">
+            <div class="city-suggestion city-suggestion--focus">
+              <span class="city-suggestion__name">Bergen</span>
+              <span class="city-suggestion__country">Norway · NO</span>
+            </div>
+            <div class="city-suggestion">
+              <span class="city-suggestion__name">Bergen op Zoom</span>
+              <span class="city-suggestion__country">Norway · NO</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RADIUS -->
+      <section class="settings-section">
+        <h2 class="settings-section__title">Radius</h2>
+        <p class="settings-section__desc">How far you'll travel. Country-wide includes Sweden + Denmark (Copenhagen, Stockholm and beyond).</p>
+        <div class="radius-row">
+          <div class="radius-opt">
+            <div class="radius-opt__value">25</div>
+            <div class="radius-opt__label">km</div>
+          </div>
+          <div class="radius-opt">
+            <div class="radius-opt__value">50</div>
+            <div class="radius-opt__label">km</div>
+          </div>
+          <div class="radius-opt radius-opt--active">
+            <div class="radius-opt__value">100</div>
+            <div class="radius-opt__label">km</div>
+          </div>
+          <div class="radius-opt">
+            <div class="radius-opt__value">NO+</div>
+            <div class="radius-opt__label">Country-wide</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- NOTIFICATIONS -->
+      <section class="settings-section">
+        <h2 class="settings-section__title">Notifications</h2>
+        <p class="settings-section__desc">When we find a new concert by an artist you follow, how do you want to hear about it?</p>
+
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-row__label">Email notifications</div>
+            <div class="toggle-row__sub">Master switch. When off, we sync but stay silent.</div>
+          </div>
+          <button class="toggle toggle--on" aria-pressed="true"></button>
+        </div>
+
+        <div style="margin-top: var(--s-5);">
+          <div class="toggle-row__label" style="margin-bottom: var(--s-3);">Frequency</div>
+          <div class="freq-row">
+            <div class="freq-opt freq-opt--active">
+              <div class="freq-opt__title">Daily digest</div>
+              <div class="freq-opt__desc">One email per day. Only if there's new stuff.</div>
+            </div>
+            <div class="freq-opt">
+              <div class="freq-opt__title">Instant</div>
+              <div class="freq-opt__desc">One email per concert as we find it.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ACCOUNT -->
+      <section class="settings-section">
+        <h2 class="settings-section__title">Account</h2>
+        <p class="settings-section__desc">Authenticated via Spotify. Your email comes from your Spotify profile and can't be edited here.</p>
+        <div class="account-row">
+          <div class="account-avatar"></div>
+          <div>
+            <div class="account-name">Kristoffer Berg</div>
+            <div class="account-email">kristoffer@example.com</div>
+          </div>
+          <div class="account-spotify">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.59 14.41c-.2.32-.61.42-.93.22-2.54-1.55-5.74-1.9-9.5-1.04-.36.08-.72-.14-.8-.5-.08-.36.14-.72.5-.8 4.12-.94 7.66-.54 10.51 1.19.32.2.42.61.22.93zm1.22-2.72c-.25.4-.77.52-1.17.27-2.91-1.79-7.35-2.31-10.79-1.27-.45.14-.93-.12-1.06-.57-.13-.45.12-.93.57-1.06 3.93-1.19 8.83-.61 12.18 1.46.4.25.52.77.27 1.17zm.1-2.84C14.42 8.78 8.94 8.59 5.67 9.58c-.54.16-1.11-.14-1.27-.68-.16-.54.14-1.11.68-1.27 3.76-1.14 9.83-.92 13.71 1.39.49.29.65.92.36 1.41-.29.49-.92.65-1.41.36z"/></svg>
+            Connected
+          </div>
+        </div>
+      </section>
+
+      <!-- DANGER -->
+      <section class="settings-section" style="border-bottom: none;">
+        <h2 class="settings-section__title" style="color: var(--src-bandsintown);">Danger zone</h2>
+        <p class="settings-section__desc">Deleting your account removes your tracked artists, notification history, and Spotify tokens. Concerts other people might be tracking stay in the database.</p>
+        <div class="danger">
+          <div class="danger__title">Disconnect Spotify & delete account</div>
+          <div class="danger__desc">This action cannot be undone. You'll have to reconnect Spotify and re-sync your artists to come back.</div>
+          <button class="btn btn--danger">Delete my account</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Aurora · USF Verftet — Concert Radar</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="style.css">
+<style>
+  .hero-art { position: relative; height: 60vh; min-height: 480px; overflow: hidden; }
+  .hero-art__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.05); filter: saturate(1.1); }
+  .hero-art__overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,10,10,0.4) 0%, rgba(10,10,10,0.2) 40%, var(--bg) 100%); }
+  .hero-art__overlay-2 { position: absolute; inset: 0; background: radial-gradient(circle at 50% 80%, rgba(255, 46, 136, 0.25), transparent 50%); mix-blend-mode: screen; }
+
+  .hero-art__back { position: absolute; top: var(--s-5); left: var(--s-6); z-index: 3; }
+
+  .detail-title-block { position: relative; z-index: 2; margin-top: -200px; padding-bottom: var(--s-7); }
+  .detail-sources { display: flex; gap: var(--s-2); margin-bottom: var(--s-4); }
+  .detail-title { font-size: clamp(72px, 12vw, 180px); font-weight: 900; line-height: 0.85; letter-spacing: -0.06em; text-transform: uppercase; }
+  .detail-title .accent { color: var(--spotify); }
+  .detail-meta { display: flex; gap: var(--s-5); align-items: center; margin-top: var(--s-5); color: var(--text-muted); font-size: 15px; flex-wrap: wrap; }
+  .detail-meta__sep { color: var(--text-dim); }
+
+  .detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: var(--s-7); padding-bottom: var(--s-10); }
+
+  .info-block { padding: var(--s-6) 0; border-top: 1px solid var(--border); }
+  .info-block:first-child { border-top: none; padding-top: 0; }
+  .info-label { font-size: var(--type-overline); text-transform: uppercase; letter-spacing: 0.16em; color: var(--text-dim); font-weight: 700; margin-bottom: var(--s-3); }
+  .info-value { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .info-sub { font-size: 14px; color: var(--text-muted); margin-top: var(--s-1); }
+
+  .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-5); }
+
+  .sidebar { position: sticky; top: 100px; height: fit-content;
+    border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--s-6); background: rgba(30,30,30,0.4); backdrop-filter: blur(12px); }
+  .sidebar__price { display: flex; align-items: baseline; gap: var(--s-2); margin-bottom: var(--s-5); }
+  .sidebar__price-num { font-size: 56px; font-weight: 900; letter-spacing: -0.04em; }
+  .sidebar__price-cur { font-size: 18px; color: var(--text-muted); font-weight: 500; }
+  .sidebar__cta { width: 100%; height: 56px; font-size: 16px; }
+  .sidebar__share { width: 100%; margin-top: var(--s-3); }
+  .sidebar__divider { height: 1px; background: var(--border); margin: var(--s-5) 0; }
+  .sidebar__row { display: flex; justify-content: space-between; font-size: 14px; padding: var(--s-2) 0; }
+  .sidebar__row-label { color: var(--text-muted); }
+
+  .source-list { display: flex; flex-direction: column; gap: var(--s-3); }
+  .source-row { display: flex; align-items: center; justify-content: space-between; padding: var(--s-3) var(--s-4); border: 1px solid var(--border); border-radius: var(--r-md); }
+  .source-row__left { display: flex; align-items: center; gap: var(--s-3); }
+  .source-row__name { font-weight: 600; }
+  .source-row__url { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+  /* venue card with mini-map placeholder */
+  .venue-card { display: grid; grid-template-columns: 100px 1fr; gap: var(--s-4); align-items: center; padding: var(--s-4); border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); }
+  .venue-card__map { width: 100px; height: 100px; border-radius: var(--r-sm); background:
+    radial-gradient(circle at 60% 50%, var(--spotify) 0%, var(--spotify) 4px, transparent 5px),
+    linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  }
+  .venue-card__name { font-size: 18px; font-weight: 700; }
+  .venue-card__addr { font-size: 14px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+
+  @media (max-width: 1024px) {
+    .detail-grid { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="app-nav">
+  <div class="app-nav__brand">CONCERT RADAR</div>
+  <div class="app-nav__links">
+    <a href="dashboard.html" class="app-nav__link app-nav__link--active">Concerts</a>
+    <a href="artists.html" class="app-nav__link">Artists</a>
+    <a href="settings.html" class="app-nav__link">Settings</a>
+  </div>
+  <div class="app-nav__user">
+    <span style="font-size:13px; color: var(--text-muted);">Kristoffer</span>
+    <div class="app-nav__avatar"></div>
+  </div>
+</nav>
+
+<div class="hero-art">
+  <img class="hero-art__img" src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=2000" alt="">
+  <div class="hero-art__overlay"></div>
+  <div class="hero-art__overlay-2"></div>
+  <a class="btn btn--ghost hero-art__back" href="dashboard.html">← Back</a>
+</div>
+
+<main class="frame">
+
+  <div class="detail-title-block">
+    <div class="detail-sources">
+      <span class="source-badge source-badge--ticketmaster">Ticketmaster</span>
+      <span class="source-badge source-badge--bandsintown">Bandsintown</span>
+    </div>
+    <h1 class="detail-title"><span class="accent">Aurora</span></h1>
+    <div class="detail-meta">
+      <span>Friday, June 14 · 21:00 CET</span>
+      <span class="detail-meta__sep">·</span>
+      <span>USF Verftet, Bergen</span>
+      <span class="detail-meta__sep">·</span>
+      <span>2.3 km away</span>
+      <span class="detail-meta__sep">·</span>
+      <span>18+</span>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <div>
+      <div class="info-block">
+        <div class="info-label">Venue</div>
+        <div class="venue-card">
+          <div class="venue-card__map"></div>
+          <div>
+            <div class="venue-card__name">USF Verftet</div>
+            <div class="venue-card__addr">Georgernes verft 12<br>5011 Bergen, Norway</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <div class="info-label">When (venue local time)</div>
+        <div class="info-grid">
+          <div>
+            <div class="info-value">Friday, June 14 2026</div>
+            <div class="info-sub">21:00 CET · doors at 20:00</div>
+          </div>
+          <div>
+            <div class="info-value">In 30 days</div>
+            <div class="info-sub">Time zone: Europe/Oslo</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <div class="info-label">Sources tracking this show</div>
+        <div class="source-list">
+          <div class="source-row">
+            <div class="source-row__left">
+              <span class="source-badge source-badge--ticketmaster">TM</span>
+              <div>
+                <div class="source-row__name">Ticketmaster</div>
+                <div class="source-row__url">ticketmaster.no/aurora-usf-2026</div>
+              </div>
+            </div>
+            <button class="btn btn--ghost" style="height: 36px; padding: 0 var(--s-4); font-size: 13px;">Open ↗</button>
+          </div>
+          <div class="source-row">
+            <div class="source-row__left">
+              <span class="source-badge source-badge--bandsintown">BIT</span>
+              <div>
+                <div class="source-row__name">Bandsintown</div>
+                <div class="source-row__url">bandsintown.com/e/aurora-bergen</div>
+              </div>
+            </div>
+            <button class="btn btn--ghost" style="height: 36px; padding: 0 var(--s-4); font-size: 13px;">Open ↗</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="sidebar__price">
+        <div class="sidebar__price-num">450</div>
+        <div class="sidebar__price-cur">NOK · from</div>
+      </div>
+      <a class="btn btn--spotify sidebar__cta" href="#" target="_blank">Get Tickets →</a>
+      <button class="btn btn--ghost sidebar__share">↗ Share concert</button>
+      <div class="sidebar__divider"></div>
+      <div class="sidebar__row"><span class="sidebar__row-label">Source priority</span><span>Ticketmaster</span></div>
+      <div class="sidebar__row"><span class="sidebar__row-label">Status</span><span style="color: var(--spotify);">● Upcoming</span></div>
+      <div class="sidebar__row"><span class="sidebar__row-label">First found</span><span>2 days ago</span></div>
+    </aside>
+  </div>
+
+</main>
+</body>
+</html>

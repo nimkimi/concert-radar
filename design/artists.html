@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Your Artists — Concert Radar</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="style.css">
+<style>
+  .page-header { padding: var(--s-7) 0 var(--s-5); display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-5); flex-wrap: wrap; }
+  .page-header__title { font-size: var(--type-display); font-weight: 900; line-height: 0.88; letter-spacing: -0.05em; text-transform: uppercase; }
+  .page-header__title .accent { color: var(--spotify); }
+  .page-header__actions { display: flex; gap: var(--s-3); align-items: center; }
+
+  .summary { display: flex; gap: var(--s-7); padding: var(--s-5) 0 var(--s-6); border-top: 1px solid var(--border); margin-bottom: var(--s-6); }
+  .summary__num { font-size: 56px; font-weight: 900; line-height: 1; letter-spacing: -0.04em; }
+  .summary__num--green { color: var(--spotify); }
+  .summary__label { font-size: var(--type-overline); text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); font-weight: 700; margin-top: var(--s-2); }
+
+  .filter-row { display: flex; gap: var(--s-2); margin-bottom: var(--s-5); align-items: center; flex-wrap: wrap; }
+
+  .artist-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s-4); padding-bottom: var(--s-10); }
+  .artist-card { position: relative; aspect-ratio: 1 / 1.2; border-radius: var(--r-md); overflow: hidden; background: var(--surface); cursor: pointer; transition: transform var(--dur-base) var(--ease-out); }
+  .artist-card:hover { transform: translateY(-3px); }
+  .artist-card__img { position: absolute; inset: 0; width: 100%; height: 70%; object-fit: cover; }
+  .artist-card__body { position: absolute; left: 0; right: 0; bottom: 0; padding: var(--s-3) var(--s-4) var(--s-4); background: var(--surface); border-top: 1px solid var(--border); }
+  .artist-card__name { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+  .artist-card__shows { font-size: 12px; color: var(--text-muted); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+  .artist-card__shows-dot { width: 6px; height: 6px; background: var(--spotify); border-radius: 50%; }
+  .artist-card__shows--zero { color: var(--text-dim); }
+  .artist-card__shows--zero .artist-card__shows-dot { background: var(--text-dim); }
+
+  /* genre tag overlay top-left on image */
+  .artist-card__genre { position: absolute; top: var(--s-3); left: var(--s-3); font-size: var(--type-overline); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); padding: 4px 8px; border-radius: var(--r-pill); }
+
+  /* exclude toggle top-right */
+  .artist-card__toggle { position: absolute; top: var(--s-3); right: var(--s-3); width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: grid; place-items: center; font-size: 16px; transition: background var(--dur-fast) var(--ease-out); }
+  .artist-card__toggle:hover { background: rgba(0,0,0,0.85); }
+  .artist-card--excluded .artist-card__img { filter: grayscale(1) brightness(0.5); }
+  .artist-card--excluded .artist-card__name { color: var(--text-dim); text-decoration: line-through; }
+  .artist-card--excluded .artist-card__toggle { background: var(--src-bandsintown); }
+
+  @media (max-width: 1200px) { .artist-grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 900px) { .artist-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 600px) { .artist-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+
+<nav class="app-nav">
+  <div class="app-nav__brand">CONCERT RADAR</div>
+  <div class="app-nav__links">
+    <a href="dashboard.html" class="app-nav__link">Concerts</a>
+    <a href="artists.html" class="app-nav__link app-nav__link--active">Artists</a>
+    <a href="settings.html" class="app-nav__link">Settings</a>
+  </div>
+  <div class="app-nav__user">
+    <span style="font-size:13px; color: var(--text-muted);">Kristoffer</span>
+    <div class="app-nav__avatar"></div>
+  </div>
+</nav>
+
+<main class="frame">
+
+  <header class="page-header">
+    <h1 class="page-header__title">Your <span class="accent">artists</span>.</h1>
+    <div class="page-header__actions">
+      <button class="btn btn--ghost">⟳ Re-sync from Spotify</button>
+    </div>
+  </header>
+
+  <div class="summary">
+    <div>
+      <div class="summary__num">68</div>
+      <div class="summary__label">Tracked</div>
+    </div>
+    <div>
+      <div class="summary__num summary__num--green">23</div>
+      <div class="summary__label">With shows</div>
+    </div>
+    <div>
+      <div class="summary__num" style="color: var(--text-muted);">3</div>
+      <div class="summary__label">Excluded</div>
+    </div>
+    <div>
+      <div class="summary__num" style="color: var(--magenta);">12d</div>
+      <div class="summary__label">Last synced</div>
+    </div>
+  </div>
+
+  <div class="filter-row">
+    <button class="chip chip--accent">All</button>
+    <button class="chip">With upcoming shows</button>
+    <button class="chip">No shows</button>
+    <button class="chip">Excluded</button>
+    <div style="margin-left: auto; font-size: 13px; color: var(--text-muted);">Sort: by upcoming shows ↓</div>
+  </div>
+
+  <section class="artist-grid">
+
+    <div class="artist-card">
+      <img class="artist-card__img" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400" alt="">
+      <span class="artist-card__genre">indie pop</span>
+      <button class="artist-card__toggle">✓</button>
+      <div class="artist-card__body">
+        <div class="artist-card__name">Aurora</div>
+        <div class="artist-card__shows"><span class="artist-card__shows-dot"></span>3 upcoming shows</div>
+      </div>
+    </div>
+
+    <div class="artist-card">
+      <img class="artist-card__img" src="https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=400" alt="">
+      <span class="artist-card__genre">indie rock</span>
+      <button class="artist-card__toggle">✓</button>
+      <div class="artist-card__body">
+        <div class="artist-card__name">The 1975</div>
+        <div class="artist-card__shows"><span class="artist-card__shows-dot"></span>2 upcoming shows</div>
+      </div>
+    </div>
+
+    <div class="artist-card">
+      <img class="artist-card__img" src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400" alt="">
+      <span class="artist-card__genre">post-rock</span>
+      <button class="artist-card__toggle">✓</button>
+      <div class="artist-card__body">
+        <div class="artist-card__name">Sigur Rós</div>
+        <div class="artist-card__shows"><span class="artist-card__shows-dot"></span>1 upcoming show</div>
+      </div>
+    </div>
+
+    <div class="artist-card">
+      <img class="artist-card__img" src="https://images.unsplash.com/photo-1551722859-d09c1ec8d5fe?w=400" alt="">
+      <span class="artist-card__genre">electronic</span>
+      <button class="artist-card__toggle">✓</button>
+      <div class="artist-card__body">
+        <div class="artist-card__name">Røyksopp</div>
+        <div class="artist-card__shows"><span class="artist-card__shows-dot"></span>2 upcoming shows</div>
+      </div>
+    </div>
+
+    <div class="artist-card">
+      <img class="artist-card__img" src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400" alt="">
+      <span class="artist-card__genre">psych rock</span>
+      <button class="artist-card__toggle">✓</button>
+      <div class="artist-card__body">
+        <div class="artist-card__name">Tame Impala</div>
+        <div class="artist-card__shows"><span class="artist-card__shows-dot"></span>1 upcoming show</div>
+      </div>
+    </div>
+
+    <div class="artist-card">
+      <img class="artist-card__img" src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=400" alt="">
+      <span class="artist-card__genre">punk</span>
+      <button class="artist-card__toggle">✓</button>
+      <div class="artist-card__body">
+        <div class="artist-card__name">Honningbarna</div>
+        <div class="artist-card__shows"><span class="artist-card__shows-dot"></span>1 upcoming show</div>
+      </div>
+    </div>
+
+    <div class="artist-card">
+      <img class="artist-card__img" src="https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?w=400" alt="">
+      <span class="artist-card__genre">indie folk</span>
+      <button class="artist-card__toggle">✓</button>
+      <div class="artist-card__body">
+        <div class="artist-card__name">Phoebe Bridgers</div>
+        <div class="artist-card__shows artist-card__shows--zero"><span class="artist-card__shows-dot"></span>No upcoming</div>
+      </div>
+    </div>
+
+    <div class="artist-card">
+      <img class="artist-card__img" src="https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400" alt="">
+      <span class="artist-card__genre">art rock</span>
+      <button class="artist-card__toggle">✓</button>
+      <div class="artist-card__body">
+        <div class="artist-card__name">King Krule</div>
+        <div class="artist-card__shows artist-card__shows--zero"><span class="artist-card__shows-dot"></span>No upcoming</div>
+      </div>
+    </div>
+
+    <div class="artist-card artist-card--excluded">
+      <img class="artist-card__img" src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400" alt="">
+      <span class="artist-card__genre">pop</span>
+      <button class="artist-card__toggle">✕</button>
+      <div class="artist-card__body">
+        <div class="artist-card__name">Excluded Artist</div>
+        <div class="artist-card__shows artist-card__shows--zero"><span class="artist-card__shows-dot"></span>Hidden</div>
+      </div>
+    </div>
+
+    <div class="artist-card">
+      <img class="artist-card__img" src="https://images.unsplash.com/photo-1485579149621-3123dd979885?w=400" alt="">
+      <span class="artist-card__genre">jazz</span>
+      <button class="artist-card__toggle">✓</button>
+      <div class="artist-card__body">
+        <div class="artist-card__name">Jaga Jazzist</div>
+        <div class="artist-card__shows artist-card__shows--zero"><span class="artist-card__shows-dot"></span>No upcoming</div>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+</body>
+</html>
