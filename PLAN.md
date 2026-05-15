@@ -442,6 +442,33 @@ concert-radar/
 
 ---
 
+## Task 4.5: Design tokens & shared layout
+
+**Goal:** Land the visual system from `concert-radar-design/` into the codebase before any feature-UI work. Output of Phase 1.5 retrofit.
+
+**TDD:** optional.
+
+**Files:**
+- Modify: `tailwind.config.ts`, `src/app/globals.css`, `src/app/layout.tsx`
+- Create: `src/components/AppNav.tsx`, `src/components/SourceBadge.tsx`, `src/components/Chip.tsx`, `src/components/Button.tsx`, `src/components/ConcertCard.tsx` (primitive)
+
+**Steps:**
+
+- [ ] Inter font via `next/font/google` (weights 400–900), applied to `<html>`.
+- [ ] Extend `tailwind.config.ts` with the theme snippet at the bottom of `design-tokens.md` (colors, type scale, radius, shadow, motion, source colors).
+- [ ] Global CSS: body backdrop radial gradients, SVG noise grain overlay (4% opacity, overlay blend), antialiased text rendering.
+- [ ] Implement shared components per `design/style.css` patterns: `<AppNav>` (sticky, pulsing brand dot, active underline), `<SourceBadge variant=...>` (4 variants), `<Chip>`, `<Button>` (spotify, ghost, primary, danger), `<ConcertCard>` primitive.
+- [ ] Respect `prefers-reduced-motion: reduce`.
+- [ ] Manual visual diff against `design/index.html`.
+- [ ] `npm run build` clean.
+- [ ] Commit: `feat(design): tokens, AppNav, SourceBadge, Chip, Button, ConcertCard primitive`.
+
+**Reference:** `concert-radar-design/index.html` for visual target; `concert-radar-design/design-tokens.md` for canonical values; `concert-radar-design/style.css` for patterns to port.
+
+**Blocks:** Tasks 5, 6, 11, 12.
+
+---
+
 ## Task 5: NextAuth Spotify OAuth + landing page
 
 **Goal:** End-to-end: clicking "Connect with Spotify" on `/` redirects through Spotify OAuth and lands the user on `/dashboard` with a populated `User` row.
@@ -864,6 +891,7 @@ ENABLE_BILLETTO=false
 | 2 | Prisma schema for all tables | `mvp`, `db` | MVP |
 | 3 | Pure utility libs: haversine, normalize, source priority | `mvp`, `lib` | MVP |
 | 4 | AES-GCM crypto + encrypted NextAuth adapter | `mvp`, `security` | MVP |
+| 4.5 | Design tokens & shared layout | `mvp`, `ui`, `setup` | MVP |
 | 5 | NextAuth Spotify OAuth + landing page | `mvp`, `auth` | MVP |
 | 6 | Settings page (city, radius, notifications) | `mvp`, `ui` | MVP |
 | 7 | Spotify artist sync (top + followed + fallback) | `mvp`, `spotify` | MVP |
