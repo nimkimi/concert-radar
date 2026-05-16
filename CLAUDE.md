@@ -23,6 +23,19 @@ This project was bootstrapped using `nimkimi/project-ideas/BUILD_PROCESS.md` and
 
 **Verification before merge:** invoke `superpowers:verification-before-completion`.
 
+## Current state (2026-05-16)
+
+**MVP progress:** 10 of 15 tasks merged. Open PR #25 (Task 10 — sync orchestrator). Tasks 11–14 pending.
+
+See [PLAN.md → Status](./PLAN.md#status-as-of-2026-05-16) for the up-to-date task-by-task breakdown, and [PLAN.md → Post-MVP follow-ups](./PLAN.md#post-mvp-follow-ups) for the tech-debt issues (#26–#37) tracking shortcuts taken during MVP. None block MVP.
+
+**Tests:** 111 passing across 16 files. Run with `npm test`. `npm run build` is expected to be clean on every PR.
+
+**Environment quirks that bit us during #5 (documented for future Claude):**
+- Spotify dashboard rejects `http://localhost` callbacks → use `127.0.0.1` everywhere.
+- Next.js 16 + Turbopack hard-codes `request.url`'s origin to localhost in dev. Workarounds in `src/lib/auth/nextauth.ts` (`customFetch` rewrite of `redirect_uri` in the token POST body) and `src/app/api/auth/[...nextauth]/route.ts` (Location-header rewrite). Both are no-ops in production. Tracked for removal in [#31](https://github.com/nimkimi/concert-radar/issues/31) when upstream lands fixes.
+- `prisma migrate dev` rejects non-interactive shells in some flows — we wrote two SQL migrations by hand (`auth_js_compat`, `email_unique`). Use the Prisma CLI normally; fall back to hand-written SQL only when blocked.
+
 ## Tech stack
 
 - Next.js 15 (App Router) · TypeScript strict
