@@ -1,0 +1,77 @@
+{
+  "resultsPage": {
+    "results": {
+      "event": [
+        {
+          "id": 11111,
+          "displayName": "Radiohead at Sentrum Scene (June 15, 2026)",
+          "type": "Concert",
+          "uri": "https://www.songkick.com/concerts/11111",
+          "start": {
+            "date": "2026-06-15",
+            "time": "20:00:00",
+            "datetime": "2026-06-15T20:00:00+0200"
+          },
+          "performance": [
+            { "artist": { "id": 1, "displayName": "Radiohead" }, "billing": "headline" }
+          ],
+          "venue": {
+            "id": 1,
+            "displayName": "Sentrum Scene",
+            "city": {
+              "displayName": "Oslo",
+              "country": { "displayName": "Norway" }
+            },
+            "lat": 59.9139,
+            "lng": 10.7522
+          },
+          "status": "ok"
+        },
+        {
+          "id": 22222,
+          "displayName": "Radiohead at Avicii Arena",
+          "type": "Concert",
+          "uri": "https://www.songkick.com/concerts/22222",
+          "start": {
+            "date": "2026-06-18",
+            "time": "20:00:00",
+            "datetime": "2026-06-18T20:00:00+0200"
+          },
+          "performance": [{ "artist": { "id": 1, "displayName": "Radiohead" } }],
+          "venue": {
+            "displayName": "Avicii Arena",
+            "city": {
+              "displayName": "Stockholm",
+              "country": { "displayName": "Sweden" }
+            },
+            "lat": 59.2935,
+            "lng": 18.0833
+          },
+          "status": "cancelled"
+        },
+        {
+          "id": 33333,
+          "displayName": "Radiohead at Mercedes-Benz Arena",
+          "type": "Concert",
+          "uri": "https://www.songkick.com/concerts/33333",
+          "start": {
+            "date": "2026-06-20",
+            "datetime": "2026-06-20T20:00:00+0200"
+          },
+          "performance": [{ "artist": { "id": 1, "displayName": "Radiohead" } }],
+          "venue": {
+            "displayName": "Mercedes-Benz Arena",
+            "city": {
+              "displayName": "Berlin",
+              "country": { "displayName": "Germany" }
+            }
+          },
+          "status": "ok"
+        }
+      ]
+    },
+    "totalEntries": 3,
+    "perPage": 50,
+    "page": 1
+  }
+}
