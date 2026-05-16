@@ -14,17 +14,13 @@
 
 ---
 
-## Status (as of 2026-05-16)
+## Status — MVP complete (2026-05-16)
 
-**Merged to `main`:** Tasks 1, 2, 3, 4, 4.5, 5, 6, 7, 8, 9 (10 of 15).
-**Open PR:** Task 10 (sync orchestrator + dedup) — PR [#25](https://github.com/nimkimi/concert-radar/pull/25), 111/111 tests passing, awaiting review.
-**Not started:** Tasks 11, 12, 13, 14.
+**All 15 tasks merged.** 29 of 30 DoD checkboxes ticked in [SPEC.md](./SPEC.md); the one open item ([#44](https://github.com/nimkimi/concert-radar/issues/44)) is cosmetic dashboard polish, not a missing capability.
 
-Total tests in suite: **111 passing.** `npm run build` clean.
+Total tests: **123 passing** across 17 files. `npm run build` clean. 14 routes registered.
 
-Next up after #10 merges: **#11 Dashboard** (first UI-flavored task since #6 — invokes `frontend-design` to port `design/dashboard.html`).
-
-See [Post-MVP follow-ups](#post-mvp-follow-ups) at the bottom for tech-debt issues filed during MVP work — none block MVP.
+See [Post-MVP follow-ups](#post-mvp-follow-ups) at the bottom for the 14 tech-debt / post-MVP issues filed during MVP execution — each documents an MVP shortcut, why it was acceptable to ship without it, and the suggested clean fix.
 
 ---
 
@@ -911,11 +907,11 @@ ENABLE_BILLETTO=false
 | 7 | Spotify artist sync (top + followed + fallback) | `mvp`, `spotify` | ✅ merged (PR #22) |
 | 8 | Ticketmaster + Bandsintown adapters | `mvp`, `sources` | ✅ merged (PR #23) |
 | 9 | Songkick + Billetto adapters (flag-gated) | `phase-2`, `sources` | ✅ merged (PR #24) |
-| 10 | Sync orchestrator + cross-source dedup | `mvp`, `sync` | 🟡 PR #25 open |
-| 11 | Dashboard concert list + sync-now | `mvp`, `ui` | ⏳ pending |
-| 12 | Artist list + concert detail pages | `mvp`, `ui` | ⏳ pending |
-| 13 | Vercel Cron + digest + instant emails | `mvp`, `cron`, `email` | ⏳ pending |
-| 14 | Delete account + DoD pass | `mvp`, `cleanup` | ⏳ pending |
+| 10 | Sync orchestrator + cross-source dedup | `mvp`, `sync` | ✅ merged (PR #25) |
+| 11 | Dashboard concert list + sync-now | `mvp`, `ui` | ✅ merged (PR #39) |
+| 12 | Artist list + concert detail pages | `mvp`, `ui` | ✅ merged (PR #41) |
+| 13 | Vercel Cron + digest + instant emails | `mvp`, `cron`, `email` | ✅ merged (PR #43) |
+| 14 | Delete account + DoD pass | `mvp`, `cleanup` | ✅ merged (PR #45) |
 
 ---
 
@@ -937,3 +933,6 @@ Shortcuts deliberately taken during MVP execution, filed as `tech-debt` / `post-
 | [#35](https://github.com/nimkimi/concert-radar/issues/35) | Replace hand-crafted Bandsintown/Songkick/Billetto fixtures with recorded responses | sources, tests |
 | [#36](https://github.com/nimkimi/concert-radar/issues/36) | Encrypted tokens: add key version + IV format header for rotation | security |
 | [#37](https://github.com/nimkimi/concert-radar/issues/37) | Push tracked-artist filter into the Concert query (currently JS-side) | sources (depends on #27) |
+| [#40](https://github.com/nimkimi/concert-radar/issues/40) | Surface invalid/missing API keys instead of silently returning `[]` | sources, dev-ex |
+| [#42](https://github.com/nimkimi/concert-radar/issues/42) | Race-safe NotificationLog inserts (`skipDuplicates` not supported on SQLite) | db, email |
+| [#44](https://github.com/nimkimi/concert-radar/issues/44) | Show first-login sync progress on dashboard (last unchecked DoD item) | ui |

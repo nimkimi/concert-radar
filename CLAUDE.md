@@ -23,13 +23,13 @@ This project was bootstrapped using `nimkimi/project-ideas/BUILD_PROCESS.md` and
 
 **Verification before merge:** invoke `superpowers:verification-before-completion`.
 
-## Current state (2026-05-16)
+## Current state — MVP complete (2026-05-16)
 
-**MVP progress:** 10 of 15 tasks merged. Open PR #25 (Task 10 — sync orchestrator). Tasks 11–14 pending.
+All 15 plan tasks merged to `main`. 29 of 30 DoD checkboxes ticked in [SPEC.md](./SPEC.md); the one open item ([#44](https://github.com/nimkimi/concert-radar/issues/44)) is cosmetic dashboard polish.
 
-See [PLAN.md → Status](./PLAN.md#status-as-of-2026-05-16) for the up-to-date task-by-task breakdown, and [PLAN.md → Post-MVP follow-ups](./PLAN.md#post-mvp-follow-ups) for the tech-debt issues (#26–#37) tracking shortcuts taken during MVP. None block MVP.
+See [PLAN.md → Status](./PLAN.md#status--mvp-complete-2026-05-16) for the task-by-task breakdown, and [PLAN.md → Post-MVP follow-ups](./PLAN.md#post-mvp-follow-ups) for the 14 tech-debt issues tracking MVP shortcuts (each has the reason it was acceptable + a suggested fix).
 
-**Tests:** 111 passing across 16 files. Run with `npm test`. `npm run build` is expected to be clean on every PR.
+**Tests:** 123 passing across 17 files. Run with `npm test`. `npm run build` clean.
 
 **Environment quirks that bit us during #5 (documented for future Claude):**
 - Spotify dashboard rejects `http://localhost` callbacks → use `127.0.0.1` everywhere.
