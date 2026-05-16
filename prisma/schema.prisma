@@ -2,12 +2,18 @@
 // Source of truth for tables: SPEC.md data model + 2026-05-15 addendum.
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // Vercel runs on Amazon Linux 2023 → rhel-openssl-3.0.x.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // POSTGRES_PRISMA_URL is the pooled (PgBouncer) URL Vercel injects when
+  // you attach Vercel Postgres; POSTGRES_URL_NON_POOLING is the direct
+  // connection used for migrations / db push.
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 // ============================================================
