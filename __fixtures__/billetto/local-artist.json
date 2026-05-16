@@ -1,0 +1,58 @@
+{
+  "data": [
+    {
+      "id": "billetto-aaa",
+      "title": "Local Artist at Sentrum Scene",
+      "url": "https://billetto.no/e/local-artist-aaa",
+      "start_at": "2026-06-15T18:00:00Z",
+      "end_at": "2026-06-15T23:00:00Z",
+      "venue": {
+        "name": "Sentrum Scene",
+        "city": "Oslo",
+        "country_code": "NO",
+        "latitude": 59.9139,
+        "longitude": 10.7522,
+        "timezone": "Europe/Oslo"
+      },
+      "status": "active"
+    },
+    {
+      "id": "billetto-bbb",
+      "title": "Local Artist at VEGA",
+      "url": "https://billetto.dk/e/local-artist-bbb",
+      "start_at": "2026-06-20T19:00:00Z",
+      "venue": {
+        "name": "VEGA",
+        "city": "København",
+        "country_code": "dk",
+        "timezone": "Europe/Copenhagen"
+      },
+      "status": "cancelled"
+    },
+    {
+      "id": "billetto-ccc",
+      "title": "Local Artist at Cirkus",
+      "url": "https://billetto.com/e/local-artist-ccc",
+      "start_at": "2026-06-22T18:30:00Z",
+      "venue": {
+        "name": "Cirkus",
+        "city": "Stockholm",
+        "country_code": "SE"
+      },
+      "status": "active"
+    },
+    {
+      "id": "billetto-ddd",
+      "title": "Out of Region",
+      "url": "https://billetto.com/e/out-ddd",
+      "start_at": "2026-06-25T18:00:00Z",
+      "venue": {
+        "name": "Some German Venue",
+        "city": "Berlin",
+        "country_code": "DE"
+      },
+      "status": "active"
+    }
+  ],
+  "meta": { "total": 4 }
+}
