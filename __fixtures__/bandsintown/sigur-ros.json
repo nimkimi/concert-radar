@@ -1,0 +1,65 @@
+[
+  {
+    "id": "bit-101",
+    "artist_id": "1234",
+    "url": "https://www.bandsintown.com/e/101",
+    "on_sale_datetime": "2026-01-01T10:00:00",
+    "datetime": "2026-08-12T20:00:00",
+    "venue": {
+      "name": "Grieghallen",
+      "country": "Norway",
+      "city": "Bergen",
+      "region": "Vestland",
+      "latitude": "60.3878",
+      "longitude": "5.3325"
+    },
+    "offers": [
+      { "type": "Tickets", "url": "https://tickets.example.com/101", "status": "available" }
+    ],
+    "lineup": ["Sigur Rós"]
+  },
+  {
+    "id": "bit-102",
+    "artist_id": "1234",
+    "url": "https://www.bandsintown.com/e/102",
+    "datetime": "2026-08-14T20:00:00",
+    "venue": {
+      "name": "Tivoli Vredenburg",
+      "country": "Netherlands",
+      "city": "Utrecht",
+      "latitude": "52.0907",
+      "longitude": "5.1214"
+    },
+    "offers": [],
+    "lineup": ["Sigur Rós"]
+  },
+  {
+    "id": "bit-103",
+    "artist_id": "1234",
+    "url": "https://www.bandsintown.com/e/103",
+    "datetime": "2026-08-20T19:30:00",
+    "venue": {
+      "name": "Cirkus",
+      "country": "Sweden",
+      "city": "Stockholm"
+    },
+    "lineup": ["Sigur Rós"]
+  },
+  {
+    "id": "bit-104",
+    "artist_id": "1234",
+    "url": "https://www.bandsintown.com/e/104",
+    "datetime": "2026-08-25T20:00:00",
+    "venue": {
+      "name": "VEGA",
+      "country": "Denmark",
+      "city": "København",
+      "latitude": "55.6712",
+      "longitude": "12.5491"
+    },
+    "offers": [
+      { "type": "Tickets", "url": "https://tickets.example.com/104", "status": "available" }
+    ],
+    "lineup": ["Sigur Rós", "Support Act"]
+  }
+]
