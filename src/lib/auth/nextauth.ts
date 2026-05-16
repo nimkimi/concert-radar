@@ -102,4 +102,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session;
     },
   },
+  events: {
+    // Fire-and-forget first-login artist sync. Failures are swallowed so a
+    // flaky Spotify response can never block a fresh sign-in; the user can
+    // retry via the "Re-sync from Spotify" button (wired in Task 11).
+    async signIn({ user, isNewUser }) {
+      if (!isNewUser || !user?.id) return;
+      const userId = user.id;
+      void (async () => {
+        try {
+          const { createSpotifyClient, syncArtistsForUser } = await import("@/lib/spotify");
+          const client = createSpotifyClient(
+            prisma,
+            userId,
+            process.env.TOKEN_ENCRYPTION_KEY!,
+            process.env.SPOTIFY_CLIENT_ID!,
+            process.env.SPOTIFY_CLIENT_SECRET!,
+          );
+          await syncArtistsForUser(prisma, userId, client);
+        } catch (err) {
+          console.error("[first-login artist sync] failed:", err);
+        }
+      })();
+    },
+  },
 });
