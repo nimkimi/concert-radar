@@ -24,7 +24,11 @@ export function groupForDashboard(concerts: Concert[]): DashboardConcert[] {
 
   const groups: DashboardConcert[] = [];
   for (const [key, rows] of map) {
-    const sources = rows.map((r) => r.source);
+    // De-duplicate sources: one source can emit multiple rows for the same
+    // artist+city+day (e.g. Ticketmaster presale + general onsale, or two
+    // events of a tour). The badge bar wants one badge per source, not per
+    // row.
+    const sources = [...new Set(rows.map((r) => r.source))];
     const winnerSource = pickPrioritySource(sources);
     const rep = rows.find((r) => r.source === winnerSource) ?? rows[0];
     groups.push({ key, representative: rep, sources, ticketUrl: rep.ticketUrl });

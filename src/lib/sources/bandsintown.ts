@@ -104,8 +104,11 @@ async function fetchForArtist({
     `app_id=${encodeURIComponent(appId)}`;
   const res = await fetch(url);
   if (!res.ok) {
-    // Bandsintown 404s for unknown artists — treat as no hits.
-    if (res.status === 404) return [];
+    // 404: unknown artist. 403: Bandsintown gates their public REST API and
+    // rejects unregistered app_ids — universal across all artists, so we
+    // treat it as "source unavailable" rather than per-artist failure to
+    // avoid spamming logs.
+    if (res.status === 404 || res.status === 403) return [];
     throw new Error(`Bandsintown ${res.status}`);
   }
   return parseBandsintownResponse(await res.json(), artistName);
