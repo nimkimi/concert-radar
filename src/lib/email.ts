@@ -194,11 +194,9 @@ export async function recordAndSendDigest(
   if (!user.notificationsEnabled || concerts.length === 0) {
     return { sent: false, count: 0 };
   }
-  // SQLite doesn't support Prisma's skipDuplicates flag (#39's TODO). The
-  // caller must filter via filterUnsent() before reaching this point;
-  // concurrent cron runs aren't expected on a daily Vercel schedule.
   const created = await prisma.notificationLog.createMany({
     data: concerts.map((c) => ({ userId: user.id, concertId: c.id })),
+    skipDuplicates: true,
   });
   if (created.count === 0) return { sent: false, count: 0 };
   await send(user, buildDigestEmail(user, concerts), opts);
@@ -212,16 +210,14 @@ export async function recordAndSendInstant(
   opts: SendOptions = {},
 ): Promise<{ sent: boolean }> {
   if (!user.notificationsEnabled) return { sent: false };
-  // SQLite lacks skipDuplicates. Check-then-create is fine for the cron's
-  // per-concert loop; concurrent runs aren't expected on a daily schedule.
-  const existing = await prisma.notificationLog.findUnique({
-    where: { userId_concertId: { userId: user.id, concertId: concert.id } },
-    select: { id: true },
+  // skipDuplicates makes the insert race-safe even if the same cron run hits
+  // this concert twice for the same user. Postgres returns count=0 when the
+  // (userId, concertId) unique constraint already had a row.
+  const created = await prisma.notificationLog.createMany({
+    data: [{ userId: user.id, concertId: concert.id }],
+    skipDuplicates: true,
   });
-  if (existing) return { sent: false };
-  await prisma.notificationLog.create({
-    data: { userId: user.id, concertId: concert.id },
-  });
+  if (created.count === 0) return { sent: false };
   await send(user, buildInstantEmail(user, concert), opts);
   return { sent: true };
 }
