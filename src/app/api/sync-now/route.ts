@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/nextauth";
 import { prisma } from "@/lib/db";
 import { runSyncForUser } from "@/lib/sync";
+import { createSpotifyClient, syncArtistsForUser } from "@/lib/spotify";
 
 const RATE_LIMIT_MS = 5 * 60 * 1000;
 
@@ -27,9 +28,22 @@ export async function POST() {
   }
 
   try {
+    // Refresh tracked artists from Spotify first — covers the case where a
+    // user signed up before the first-login hook landed, and keeps the
+    // dashboard's manual Sync button self-sufficient.
+    const spotify = createSpotifyClient(
+      prisma,
+      session.user.id,
+      process.env.TOKEN_ENCRYPTION_KEY!,
+      process.env.SPOTIFY_CLIENT_ID!,
+      process.env.SPOTIFY_CLIENT_SECRET!,
+    );
+    const artists = await syncArtistsForUser(prisma, session.user.id, spotify);
+
     const result = await runSyncForUser(prisma, session.user.id);
     return NextResponse.json({
       newConcerts: result.newConcerts.length,
+      trackedArtists: artists.upserted,
       perSource: result.perSource,
     });
   } catch (err) {

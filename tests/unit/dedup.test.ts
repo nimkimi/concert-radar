@@ -83,4 +83,16 @@ describe("groupForDashboard", () => {
   it("returns [] for empty input", () => {
     expect(groupForDashboard([])).toEqual([]);
   });
+
+  it("deduplicates sources within a group (same source, multiple rows)", () => {
+    // Ticketmaster sometimes emits presale + general-onsale as separate events
+    // for the same artist+city+day; we should show one TM badge, not two.
+    const day = new Date("2026-06-15T18:00:00Z");
+    const out = groupForDashboard([
+      concert({ id: "a", source: "TICKETMASTER", externalId: "tm-1", artistName: "System Of A Down", venueCity: "Stockholm", eventDate: day }),
+      concert({ id: "b", source: "TICKETMASTER", externalId: "tm-2", artistName: "System Of A Down", venueCity: "Stockholm", eventDate: day }),
+    ]);
+    expect(out).toHaveLength(1);
+    expect(out[0].sources).toEqual(["TICKETMASTER"]);
+  });
 });
