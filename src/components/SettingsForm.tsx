@@ -108,11 +108,20 @@ export function SettingsForm({ initial }: { initial: SettingsInitial }) {
   }
 
   async function deleteAccount() {
-    if (!window.confirm("Permanently delete your Concert Radar account? This can't be undone.")) {
+    if (
+      !window.confirm(
+        "Permanently delete your Concert Radar account?\n\nThis removes your tracked artists, " +
+          "notification history, and stored Spotify tokens. This action cannot be undone.",
+      )
+    ) {
       return;
     }
-    // Wired up in issue #14. For now, no-op + alert.
-    window.alert("Account deletion ships in a later release.");
+    const res = await fetch("/api/account/delete", { method: "POST" });
+    if (!res.ok) {
+      window.alert("Couldn't delete the account — please try again.");
+      return;
+    }
+    window.location.href = "/";
   }
 
   return (
