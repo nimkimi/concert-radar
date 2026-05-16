@@ -1,0 +1,40 @@
+[
+  {
+    "place_id": 12345,
+    "lat": "60.3943055",
+    "lon": "5.3259192",
+    "display_name": "Bergen, Vestland, Norway",
+    "type": "city",
+    "address": {
+      "city": "Bergen",
+      "county": "Vestland",
+      "country": "Norway",
+      "country_code": "no"
+    }
+  },
+  {
+    "place_id": 67890,
+    "lat": "59.4137",
+    "lon": "5.3033",
+    "display_name": "Bergen, Karmøy, Rogaland, Norway",
+    "type": "village",
+    "address": {
+      "village": "Bergen",
+      "municipality": "Karmøy",
+      "country": "Norway",
+      "country_code": "no"
+    }
+  },
+  {
+    "place_id": 99999,
+    "lat": "51.4946",
+    "lon": "4.2871",
+    "display_name": "Bergen op Zoom, North Brabant, Netherlands",
+    "type": "city",
+    "address": {
+      "city": "Bergen op Zoom",
+      "country": "Netherlands",
+      "country_code": "nl"
+    }
+  }
+]
