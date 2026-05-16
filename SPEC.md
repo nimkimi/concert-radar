@@ -214,25 +214,25 @@ Music fans miss concerts by artists they follow because show announcements are s
 
 ## Definition of Done (MVP)
 
-- [ ] User can log in with Spotify and grant the required OAuth scopes
-- [ ] App fetches and stores the user's top 50 artists from Spotify (`user-top-read`)
-- [ ] App fetches and stores the user's followed artists from Spotify (`user-follow-read`)
-- [ ] User can set their home city — city name is geocoded to lat/lon via Nominatim
-- [ ] User can set monitoring radius (25km / 50km / 100km / Country-wide)
-- [ ] App queries Ticketmaster for upcoming Norwegian shows by each tracked artist
-- [ ] App queries Bandsintown for upcoming shows by each tracked artist
-- [ ] App queries Songkick for upcoming shows by each tracked artist
-- [ ] App queries Billetto for upcoming events matching each tracked artist name
-- [ ] Concerts are deduped by `(externalId, source)` — no duplicate cards in the dashboard
-- [ ] Dashboard displays concerts within the user's radius, sorted by date
-- [ ] Distance from user's location is calculated (Haversine) and shown on each card
-- [ ] Vercel Cron runs daily, syncs all users' concerts, sends email via Resend for newly found shows
-- [ ] NotificationLog prevents the same concert being emailed to the same user twice
-- [ ] User can exclude an artist — their concerts disappear from the dashboard
-- [ ] "Sync now" button triggers an immediate re-fetch for the current user
-- [ ] Settings page saves city + radius changes and re-computes concert distances
-- [ ] Spotify access tokens are refreshed automatically when expired
-- [ ] No TypeScript errors (`npm run build` passes)
+- [x] User can log in with Spotify and grant the required OAuth scopes
+- [x] App fetches and stores the user's top 50 artists from Spotify (`user-top-read`)
+- [x] App fetches and stores the user's followed artists from Spotify (`user-follow-read`)
+- [x] User can set their home city — city name is geocoded to lat/lon via Nominatim
+- [x] User can set monitoring radius (25km / 50km / 100km / Country-wide)
+- [x] App queries Ticketmaster for upcoming Norwegian shows by each tracked artist
+- [x] App queries Bandsintown for upcoming shows by each tracked artist
+- [x] App queries Songkick for upcoming shows by each tracked artist
+- [x] App queries Billetto for upcoming events matching each tracked artist name
+- [x] Concerts are deduped by `(externalId, source)` — no duplicate cards in the dashboard
+- [x] Dashboard displays concerts within the user's radius, sorted by date
+- [x] Distance from user's location is calculated (Haversine) and shown on each card
+- [x] Vercel Cron runs daily, syncs all users' concerts, sends email via Resend for newly found shows
+- [x] NotificationLog prevents the same concert being emailed to the same user twice
+- [x] User can exclude an artist — their concerts disappear from the dashboard
+- [x] "Sync now" button triggers an immediate re-fetch for the current user
+- [x] Settings page saves city + radius changes and re-computes concert distances
+- [x] Spotify access tokens are refreshed automatically when expired
+- [x] No TypeScript errors (`npm run build` passes)
 
 ---
 
@@ -305,13 +305,13 @@ If a user's Spotify top + followed artists yields fewer than 5 distinct artists,
 
 These are added on top of the existing DoD checklist.
 
-- [ ] Cross-source duplicate concerts collapse to one card with multiple source badges
-- [ ] `/api/cron/sync` rejects unauthenticated requests with 401
-- [ ] "Sync now" is rate-limited to one call per 5 minutes per user
-- [ ] Spotify access and refresh tokens are AES-encrypted at rest
-- [ ] User can switch between daily digest and instant emails in Settings
-- [ ] Concert times display in the venue's local time zone
-- [ ] `SyncLog` rows are written per `(source, run)` and a failed source does not abort the run
-- [ ] `ENABLE_BILLETTO` and `ENABLE_SONGKICK` feature flags gate their adapters
+- [x] Cross-source duplicate concerts collapse to one card with multiple source badges
+- [x] `/api/cron/sync` rejects unauthenticated requests with 401
+- [x] "Sync now" is rate-limited to one call per 5 minutes per user
+- [x] Spotify access and refresh tokens are AES-encrypted at rest
+- [x] User can switch between daily digest and instant emails in Settings
+- [x] Concert times display in the venue's local time zone
+- [x] `SyncLog` rows are written per `(source, run)` and a failed source does not abort the run
+- [x] `ENABLE_BILLETTO` and `ENABLE_SONGKICK` feature flags gate their adapters
 - [ ] Initial sync runs in the background; dashboard shows progress while it runs
-- [ ] Cold-start fallback seeds saved albums when top + followed artists < 5
+- [x] Cold-start fallback seeds saved albums when top + followed artists < 5
