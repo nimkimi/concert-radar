@@ -14,6 +14,20 @@
 
 ---
 
+## Status (as of 2026-05-16)
+
+**Merged to `main`:** Tasks 1, 2, 3, 4, 4.5, 5, 6, 7, 8, 9 (10 of 15).
+**Open PR:** Task 10 (sync orchestrator + dedup) — PR [#25](https://github.com/nimkimi/concert-radar/pull/25), 111/111 tests passing, awaiting review.
+**Not started:** Tasks 11, 12, 13, 14.
+
+Total tests in suite: **111 passing.** `npm run build` clean.
+
+Next up after #10 merges: **#11 Dashboard** (first UI-flavored task since #6 — invokes `frontend-design` to port `design/dashboard.html`).
+
+See [Post-MVP follow-ups](#post-mvp-follow-ups) at the bottom for tech-debt issues filed during MVP work — none block MVP.
+
+---
+
 ## File structure
 
 ```
@@ -885,20 +899,41 @@ ENABLE_BILLETTO=false
 
 ## Mapping plan tasks → GitHub issues (for Phase 4)
 
-| Task | Issue title | Labels | Milestone |
+| Task | Issue title | Labels | Status |
 |---|---|---|---|
-| 1 | Scaffold Next.js + Tailwind + Prisma + Vitest | `mvp`, `setup` | MVP |
-| 2 | Prisma schema for all tables | `mvp`, `db` | MVP |
-| 3 | Pure utility libs: haversine, normalize, source priority | `mvp`, `lib` | MVP |
-| 4 | AES-GCM crypto + encrypted NextAuth adapter | `mvp`, `security` | MVP |
-| 4.5 | Design tokens & shared layout | `mvp`, `ui`, `setup` | MVP |
-| 5 | NextAuth Spotify OAuth + landing page | `mvp`, `auth` | MVP |
-| 6 | Settings page (city, radius, notifications) | `mvp`, `ui` | MVP |
-| 7 | Spotify artist sync (top + followed + fallback) | `mvp`, `spotify` | MVP |
-| 8 | Ticketmaster + Bandsintown adapters | `mvp`, `sources` | MVP |
-| 9 | Songkick + Billetto adapters (flag-gated) | `phase-2`, `sources` | MVP |
-| 10 | Sync orchestrator + cross-source dedup | `mvp`, `sync` | MVP |
-| 11 | Dashboard concert list + sync-now | `mvp`, `ui` | MVP |
-| 12 | Artist list + concert detail pages | `mvp`, `ui` | MVP |
-| 13 | Vercel Cron + digest + instant emails | `mvp`, `cron`, `email` | MVP |
-| 14 | Delete account + DoD pass | `mvp`, `cleanup` | MVP |
+| 1 | Scaffold Next.js + Tailwind + Prisma + Vitest | `mvp`, `setup` | ✅ merged |
+| 2 | Prisma schema for all tables | `mvp`, `db` | ✅ merged |
+| 3 | Pure utility libs: haversine, normalize, source priority | `mvp`, `lib` | ✅ merged |
+| 4 | AES-GCM crypto + encrypted NextAuth adapter | `mvp`, `security` | ✅ merged |
+| 4.5 | Design tokens & shared layout | `mvp`, `ui`, `setup` | ✅ merged |
+| 5 | NextAuth Spotify OAuth + landing page | `mvp`, `auth` | ✅ merged (PR #20) |
+| 6 | Settings page (city, radius, notifications) | `mvp`, `ui` | ✅ merged (PR #21) |
+| 7 | Spotify artist sync (top + followed + fallback) | `mvp`, `spotify` | ✅ merged (PR #22) |
+| 8 | Ticketmaster + Bandsintown adapters | `mvp`, `sources` | ✅ merged (PR #23) |
+| 9 | Songkick + Billetto adapters (flag-gated) | `phase-2`, `sources` | ✅ merged (PR #24) |
+| 10 | Sync orchestrator + cross-source dedup | `mvp`, `sync` | 🟡 PR #25 open |
+| 11 | Dashboard concert list + sync-now | `mvp`, `ui` | ⏳ pending |
+| 12 | Artist list + concert detail pages | `mvp`, `ui` | ⏳ pending |
+| 13 | Vercel Cron + digest + instant emails | `mvp`, `cron`, `email` | ⏳ pending |
+| 14 | Delete account + DoD pass | `mvp`, `cleanup` | ⏳ pending |
+
+---
+
+## Post-MVP follow-ups
+
+Shortcuts deliberately taken during MVP execution, filed as `tech-debt` / `post-mvp` issues on GitHub. **None block MVP.** Each issue describes the shortcut, why it was acceptable for MVP, and the suggested clean fix.
+
+| # | Title | Area |
+|---|---|---|
+| [#26](https://github.com/nimkimi/concert-radar/issues/26) | Replace in-memory 6h sync cache with DB-backed TTL | sync, scalability |
+| [#27](https://github.com/nimkimi/concert-radar/issues/27) | Persist `normalizedArtistName` on Concert + index it | db, scalability |
+| [#28](https://github.com/nimkimi/concert-radar/issues/28) | Replace "new concert" detection heuristic in `runSyncForUser` | sync, correctness |
+| [#29](https://github.com/nimkimi/concert-radar/issues/29) | Enrich saved-album fallback artists with `/artists/{ids}` lookup | spotify, data quality |
+| [#30](https://github.com/nimkimi/concert-radar/issues/30) | Spotify token refresh: target specific Account row, not `updateMany` | spotify, security |
+| [#31](https://github.com/nimkimi/concert-radar/issues/31) | Remove Next.js 16 + Spotify OAuth dev workarounds when upstream lands fixes | auth |
+| [#32](https://github.com/nimkimi/concert-radar/issues/32) | Bandsintown TZ math: replace ad-hoc Intl trick with Luxon/Temporal | sources, correctness |
+| [#33](https://github.com/nimkimi/concert-radar/issues/33) | Rate-limit `/api/sync-artists`, `/api/cities`, `/api/settings` | security |
+| [#34](https://github.com/nimkimi/concert-radar/issues/34) | Surface per-artist sync failures (currently only `console.warn`) | sync, observability |
+| [#35](https://github.com/nimkimi/concert-radar/issues/35) | Replace hand-crafted Bandsintown/Songkick/Billetto fixtures with recorded responses | sources, tests |
+| [#36](https://github.com/nimkimi/concert-radar/issues/36) | Encrypted tokens: add key version + IV format header for rotation | security |
+| [#37](https://github.com/nimkimi/concert-radar/issues/37) | Push tracked-artist filter into the Concert query (currently JS-side) | sources (depends on #27) |
