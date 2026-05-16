@@ -21,6 +21,20 @@ export function formatEventTime(date: Date, timezone: string): string {
   return tzAbbr ? `${time} ${tzAbbr}` : time;
 }
 
+export function formatLongEventDate(date: Date, timezone: string): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: timezone,
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}
+
+export function daysUntil(date: Date, now: Date = new Date()): number {
+  return Math.round((date.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
+}
+
 export function formatRelativeMinutes(from: Date | null): string {
   if (!from) return "never";
   const ms = Date.now() - from.getTime();
