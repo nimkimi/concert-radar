@@ -1,0 +1,34 @@
+{
+  "items": [
+    {
+      "id": "0OdUWJ0sBjDrqHygGUXeCF",
+      "name": "Band of Horses",
+      "images": [
+        { "url": "https://i.scdn.co/image/large.jpg", "height": 640, "width": 640 },
+        { "url": "https://i.scdn.co/image/small.jpg", "height": 160, "width": 160 }
+      ],
+      "genres": ["indie rock", "alternative country"],
+      "type": "artist",
+      "uri": "spotify:artist:0OdUWJ0sBjDrqHygGUXeCF"
+    },
+    {
+      "id": "4Z8W4fKeB5YxbusRsdQVPb",
+      "name": "Radiohead",
+      "images": [
+        { "url": "https://i.scdn.co/image/radiohead.jpg", "height": 640, "width": 640 }
+      ],
+      "genres": ["alternative rock", "art rock"],
+      "type": "artist"
+    },
+    {
+      "id": "6FBDaR13swtiWwGhX1WQsP",
+      "name": "Blackbriar",
+      "images": [],
+      "genres": [],
+      "type": "artist"
+    }
+  ],
+  "total": 50,
+  "limit": 50,
+  "offset": 0
+}

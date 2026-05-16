@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "added_at": "2025-08-01T12:00:00Z",
+      "album": {
+        "id": "album_1",
+        "name": "In Rainbows",
+        "images": [
+          { "url": "https://i.scdn.co/image/inrainbows.jpg", "height": 640, "width": 640 }
+        ],
+        "artists": [
+          {
+            "id": "4Z8W4fKeB5YxbusRsdQVPb",
+            "name": "Radiohead",
+            "type": "artist"
+          }
+        ]
+      }
+    },
+    {
+      "added_at": "2025-08-02T12:00:00Z",
+      "album": {
+        "id": "album_2",
+        "name": "Sigur Rós EP",
+        "images": [
+          { "url": "https://i.scdn.co/image/sigur.jpg", "height": 640, "width": 640 }
+        ],
+        "artists": [
+          {
+            "id": "2y8Jo9CKhJvtfeKOsYzRdT",
+            "name": "Sigur Rós",
+            "type": "artist"
+          }
+        ]
+      }
+    },
+    {
+      "added_at": "2025-08-03T12:00:00Z",
+      "album": {
+        "id": "album_3",
+        "name": "Collab Album",
+        "images": [],
+        "artists": [
+          { "id": "artist_a", "name": "Artist A", "type": "artist" },
+          { "id": "artist_b", "name": "Artist B", "type": "artist" }
+        ]
+      }
+    },
+    {
+      "added_at": "2025-08-04T12:00:00Z",
+      "album": {
+        "id": "album_4",
+        "name": "Another Collab",
+        "images": [],
+        "artists": [
+          { "id": "artist_a", "name": "Artist A", "type": "artist" }
+        ]
+      }
+    }
+  ],
+  "total": 4,
+  "limit": 50,
+  "offset": 0
+}
