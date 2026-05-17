@@ -70,6 +70,12 @@ type SpotifyProfile = {
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // Auth.js v5 rejects the request host unless we either set AUTH_TRUST_HOST=true
+  // in the environment or opt in here. Behind Vercel's reverse proxy, the Host
+  // header reaching the function is the deployed URL (e.g. *.vercel.app) and we
+  // already validate AUTH_URL/NEXTAUTH_URL ourselves in the OAuth callback
+  // rewrites, so trusting the host here is safe.
+  trustHost: true,
   adapter: encryptedPrismaAdapter(prisma, process.env.TOKEN_ENCRYPTION_KEY!),
   providers: [
     Spotify({
