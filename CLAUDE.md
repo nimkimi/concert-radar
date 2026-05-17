@@ -40,7 +40,7 @@ See [PLAN.md → Status](./PLAN.md#status--mvp-complete-2026-05-16) for the task
 
 - Next.js 16 (App Router) · TypeScript strict
 - Tailwind CSS v4 · Inter font · dark mode only
-- Prisma 6 + **Postgres** (Vercel Postgres / Neon in prod, local Postgres or Neon dev branch locally)
+- Prisma 6 + SQLite locally / **Turso (libsql)** in prod via the `@prisma/adapter-libsql` driver adapter — same schema dialect, runtime swap in `src/lib/db.ts`
 - NextAuth v5 with Spotify OAuth + custom AES-GCM encrypted-token adapter
 - Vitest (unit + integration with recorded fixtures)
 - Vercel Cron · Resend email
@@ -48,39 +48,44 @@ See [PLAN.md → Status](./PLAN.md#status--mvp-complete-2026-05-16) for the task
 
 ## Local development
 
-You need a Postgres instance. Easiest is Docker:
-
-```bash
-docker run --rm -d --name cr-pg -p 5432:5432 \
-  -e POSTGRES_PASSWORD=dev -e POSTGRES_DB=concert_radar postgres:16
-```
-
-Then:
-
 ```bash
 npm install
-cp .env.example .env.local   # fill POSTGRES_PRISMA_URL + secrets
-npx prisma db push           # syncs schema to your DB
+cp .env.example .env.local   # fill API keys; leave TURSO_* blank for local
+npx prisma migrate dev       # creates ./dev.db
 npm run dev                  # http://127.0.0.1:3000
 ```
 
-For a postgres-on-localhost setup, set both:
-```
-POSTGRES_PRISMA_URL=postgresql://postgres:dev@localhost:5432/concert_radar
-POSTGRES_URL_NON_POOLING=postgresql://postgres:dev@localhost:5432/concert_radar
-```
+When `TURSO_DATABASE_URL` is unset (the default for `.env.local`), Prisma uses the SQLite file driver against `DATABASE_URL=file:./dev.db`. When it IS set (production), `src/lib/db.ts` instantiates Prisma with the libsql driver adapter pointed at Turso.
 
-See `.env.example` for the full list of env vars.
+## Production deploy (Vercel + Turso)
 
-## Production deploy (Vercel)
+1. **Install the Turso CLI:** `brew install tursodatabase/tap/turso` (or per their install docs), then `turso auth login`.
+2. **Create the database** (pick a region close to your users):
+   ```bash
+   turso db create concert-radar --location ams   # ams = Amsterdam, close to NO/SE/DK
+   turso db show concert-radar --url              # copy → TURSO_DATABASE_URL
+   turso db tokens create concert-radar           # copy → TURSO_AUTH_TOKEN
+   ```
+3. **Push the schema to Turso once:**
+   ```bash
+   DATABASE_URL="libsql://<your-db>.turso.io?authToken=<token>" \
+     npm run turso:push
+   ```
+   (Prisma's `db push` needs a single connection string. After this, the app uses the driver adapter and `DATABASE_URL` is ignored in prod.)
+4. **Vercel:** import the repo, then **Settings → Environment Variables**:
+   - `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` (from step 2)
+   - `NEXTAUTH_SECRET`, `AUTH_URL`/`NEXTAUTH_URL`, `TOKEN_ENCRYPTION_KEY`, `CRON_SECRET`
+   - `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`
+   - `TICKETMASTER_API_KEY`, `BANDSINTOWN_APP_ID`
+   - `RESEND_API_KEY`, `RESEND_FROM`
+   - `ENABLE_SONGKICK=false`, `ENABLE_BILLETTO=false`
+5. **Spotify dashboard** → app → add the production callback URL: `https://your-domain.vercel.app/api/auth/callback/spotify`.
+6. **Push to `main`** — Vercel runs `prisma generate && next build` and registers the daily cron from `vercel.json`.
 
-1. `vercel link` (or import the repo via the Vercel dashboard)
-2. Project → Storage → **Create Database** → Postgres. Vercel injects `POSTGRES_PRISMA_URL` + `POSTGRES_URL_NON_POOLING` automatically.
-3. Project → Settings → Environment Variables, paste in every non-DB secret (`NEXTAUTH_SECRET`, `AUTH_URL`/`NEXTAUTH_URL`, `TOKEN_ENCRYPTION_KEY`, `CRON_SECRET`, `SPOTIFY_*`, `TICKETMASTER_API_KEY`, `BANDSINTOWN_APP_ID`, `RESEND_*`, feature flags).
-4. Spotify dashboard → app → add the production callback URL: `https://your-domain.vercel.app/api/auth/callback/spotify`.
-5. Push to `main` — Vercel build runs `prisma generate && prisma db push && next build`, then `vercel.json` registers the daily cron at 07:00 UTC.
+Cron auth: Vercel sets `Authorization: Bearer ${CRON_SECRET}` on scheduled requests when `CRON_SECRET` is in env. Our `/api/cron/sync` validates that header.
 
-Cron auth: Vercel automatically sets `Authorization: Bearer ${CRON_SECRET}` on cron requests when `CRON_SECRET` is in env. Our `/api/cron/sync` route validates that header.
+### Why this DB shape?
+SQLite locally → libsql in prod is a deliberate trade-off: zero local-dev setup, tiny in-process driver, generous Turso free tier (9 GB storage, 1B reads/mo, 25M writes/mo). Costs: no `createMany({ skipDuplicates: true })` ([#42](https://github.com/nimkimi/concert-radar/issues/42)), weaker full-text search than Postgres, narrower vendor ecosystem. For our write-light, single-region workload it's a comfortable fit.
 
 ## Definition of Done
 
