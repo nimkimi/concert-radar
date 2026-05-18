@@ -230,6 +230,189 @@ export default async function LandingPage() {
         </div>
       </section>
 
+      {/* ============ DASHBOARD PREVIEW ============ */}
+      <section className="border-b border-(--color-border) py-28 px-8">
+        <div className="cr-frame">
+          <span className="cr-kicker mb-4">Inside the app</span>
+          <h2 className="font-bold tracking-[-0.035em] leading-[1.04] mb-4 max-w-[720px]" style={{ fontSize: "clamp(32px, 4vw, 48px)" }}>
+            A dashboard that respects your time.
+          </h2>
+          <p className="text-[17px] leading-[1.55] text-(--color-text-soft) max-w-[560px]">
+            The next show you should care about is the first thing you see. Everything else
+            groups by urgency — this week, this month, soon, later in the year.
+          </p>
+
+          <div
+            className="mt-16 cr-card overflow-hidden"
+            style={{ boxShadow: "var(--shadow-lg)" }}
+          >
+            {/* mac-style chrome */}
+            <div className="flex items-center gap-3 px-5 py-3.5 border-b border-(--color-border) bg-(--color-bg-subtle)">
+              <div className="flex gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-(--color-border-strong)" />
+                <span className="w-2.5 h-2.5 rounded-full bg-(--color-border-strong)" />
+                <span className="w-2.5 h-2.5 rounded-full bg-(--color-border-strong)" />
+              </div>
+              <div className="flex-1 text-center text-xs text-(--color-text-dim)">
+                concert-radar.app/dashboard
+              </div>
+              <div className="w-10" />
+            </div>
+
+            <div className="p-8">
+              <div className="flex justify-between items-end mb-7">
+                <div>
+                  <h4 className="text-[22px] font-bold tracking-[-0.02em]">
+                    6 upcoming shows <span className="text-(--color-green)">near Bergen</span>
+                  </h4>
+                  <div className="text-xs text-(--color-text-dim) mt-1">
+                    Last synced 4 minutes ago · within 50 km · 12 artists tracked
+                  </div>
+                </div>
+                <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-(--color-bg-subtle) text-(--color-text-soft)">
+                  ⟳ Sync now
+                </span>
+              </div>
+
+              {/* Hero card */}
+              <div className="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-6 p-5 rounded-xl bg-(--color-bg-subtle) mb-7">
+                <div
+                  className="aspect-square rounded-lg bg-cover bg-center"
+                  style={{
+                    backgroundImage:
+                      "url(https://upload.wikimedia.org/wikipedia/commons/9/92/Sigrid_p%C3%A5_scenen_i_Oslo_Spektrum_i_2022._211328.jpg)",
+                  }}
+                />
+                <div className="flex flex-col justify-between">
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.06em] text-(--color-green) mb-1.5">
+                      ↑ Up next · in 11 days
+                    </div>
+                    <div className="text-[28px] font-bold tracking-[-0.025em] mb-3">Sigrid</div>
+                    <div className="text-sm text-(--color-text-soft) leading-[1.7]">
+                      <strong className="text-(--color-text) font-medium">USF Verftet</strong>, Bergen<br />
+                      Fri, May 29 · 20:30 · 3 km from you
+                    </div>
+                  </div>
+                  <div className="flex gap-2.5 mt-4">
+                    <span className="bg-(--color-green) text-black px-3.5 py-2 rounded-full text-[13px] font-semibold">
+                      Get tickets →
+                    </span>
+                    <span className="bg-(--color-bg-elev) border border-(--color-border) text-(--color-text-soft) px-3.5 py-2 rounded-full text-[13px] font-medium">
+                      Share
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Later in 2026 row */}
+              <div className="cr-section-label mb-3">
+                Later in 2026 <span className="count">3</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { name: "Slowdive", meta: "Sentrum Scene · Aug 22", img: "https://upload.wikimedia.org/wikipedia/commons/f/f3/Slowdive_live_1992.jpg" },
+                  { name: "Big Thief", meta: "Hulen · Oct 14", img: "https://upload.wikimedia.org/wikipedia/commons/3/31/Big_Thief_performing_at_The_National%27s_Homecoming_festival_in_Cincinnati%2C_Ohio_-_April_29%2C_2018.jpg" },
+                  { name: "Mitski", meta: "Olavshallen · Nov 5", img: "https://upload.wikimedia.org/wikipedia/commons/a/ac/MitskiUnionChap111023_%2813_of_30%29_%2853252051563%29_%28cropped%29_2.jpg" },
+                ].map((c) => (
+                  <div key={c.name} className="rounded-lg overflow-hidden bg-(--color-bg-subtle)">
+                    <div
+                      className="aspect-[16/10] bg-cover bg-center"
+                      style={{ backgroundImage: `url(${c.img})` }}
+                    />
+                    <div className="px-3 py-2.5">
+                      <div className="text-[13px] font-semibold">{c.name}</div>
+                      <div className="text-[11px] text-(--color-text-dim) mt-0.5">{c.meta}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ EMAIL PREVIEW ============ */}
+      <section className="border-b border-(--color-border) py-28 px-8">
+        <div className="cr-frame">
+          <span className="cr-kicker mb-4">Email is first class</span>
+          <h2 className="font-bold tracking-[-0.035em] leading-[1.04] mb-4 max-w-[720px]" style={{ fontSize: "clamp(32px, 4vw, 48px)" }}>
+            Designed to be read, not skimmed.
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_380px] gap-12 items-start mt-16">
+            <div>
+              <p className="text-[15px] leading-[1.6] text-(--color-text-soft) mb-5">
+                Most users open Concert Radar via the email, not the app. So the email has to carry its weight.
+              </p>
+              <ul className="list-none">
+                {[
+                  "Renders identically in Gmail, Apple Mail, Outlook, Proton.",
+                  "Dark mode aware — no white-text-on-white nightmares.",
+                  "Table-based for client compatibility, but doesn't look like it.",
+                  "One link per concert, no tracking pixels, no dark patterns.",
+                ].map((line) => (
+                  <li
+                    key={line}
+                    className="relative text-sm text-(--color-text-soft) py-2 pl-7 border-b border-(--color-border)"
+                  >
+                    <span
+                      className="absolute left-0 top-3.5 w-3 h-3 rounded-full"
+                      style={{
+                        background: "var(--color-green-soft)",
+                        border: "2px solid var(--color-green)",
+                      }}
+                    />
+                    {line}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div
+              className="cr-card overflow-hidden"
+              style={{ boxShadow: "var(--shadow-md)" }}
+            >
+              <div className="px-4.5 py-3.5 border-b border-(--color-border) text-xs text-(--color-text-dim)">
+                From <strong className="text-(--color-text) font-medium">alerts@concert-radar.app</strong> · 07:00
+              </div>
+              <div className="p-6">
+                <div className="text-[11px] font-bold tracking-[0.16em] text-(--color-green) mb-4">
+                  CONCERT RADAR
+                </div>
+                <h4 className="text-[22px] font-bold tracking-[-0.02em] leading-[1.15] mb-2">
+                  2 new shows landed.
+                </h4>
+                <p className="text-[13px] text-(--color-text-soft) mb-5">
+                  Hi Nima — artists you track are playing within your radius this week.
+                </p>
+
+                {[
+                  { name: "Sigrid · USF Verftet, Bergen", meta: "Fri, May 29 · 20:30", img: "https://upload.wikimedia.org/wikipedia/commons/9/92/Sigrid_p%C3%A5_scenen_i_Oslo_Spektrum_i_2022._211328.jpg", cta: true },
+                  { name: "Aurora · Bergenhus Festning", meta: "Sat, Jun 13 · 21:00", img: "https://upload.wikimedia.org/wikipedia/commons/6/65/AURORA%2C_Ravnedalen_Live_festival%2C_Kristiansand%2C_Norway_%2853867200364%29_%28cropped%29.jpg", cta: false },
+                ].map((c) => (
+                  <div key={c.name} className="border border-(--color-border) rounded-xl overflow-hidden mb-3 last:mb-0">
+                    <div
+                      className="h-[120px] bg-cover bg-center"
+                      style={{ backgroundImage: `url(${c.img})` }}
+                    />
+                    <div className="px-3.5 py-3">
+                      <div className="text-sm font-semibold">{c.name}</div>
+                      <div className="text-[11px] text-(--color-text-dim) mt-0.5">{c.meta}</div>
+                      {c.cta && (
+                        <span className="inline-block bg-(--color-green) text-black px-3 py-1.5 rounded-md text-[12px] font-semibold mt-2">
+                          Get tickets →
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ============ FAQ ============ */}
       <section id="faq" className="border-b border-(--color-border) py-28 px-8">
         <div className="cr-frame">
