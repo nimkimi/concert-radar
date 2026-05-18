@@ -12,17 +12,27 @@ export default async function LandingPage() {
     <>
       {/* ============ HERO ============ */}
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden text-white px-8 pt-32 pb-20 text-center">
-        {/* Animated background */}
-        <div
+        {/* Looping hero video. Scaled up and bottom-anchored so the
+            stage-marker artifact in the upper portion of the source
+            footage falls outside the visible crop. The hero overflow is
+            already hidden by the section. */}
+        <video
           aria-hidden
-          className="absolute inset-0 z-0 bg-cover bg-center"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          poster="https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=2200&q=85"
+          className="absolute inset-0 w-full h-full object-cover z-0"
           style={{
-            backgroundImage:
-              "url(https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=2200&q=85)",
             filter: "saturate(0.85) contrast(1.05)",
-            animation: "cr-kenburns 24s ease-in-out infinite alternate",
+            transform: "scale(1.4)",
+            transformOrigin: "50% 100%",
           }}
-        />
+        >
+          <source src="/concert-radar-hero.mp4" type="video/mp4" />
+        </video>
         <div
           aria-hidden
           className="absolute inset-0 z-[1]"
@@ -122,12 +132,6 @@ export default async function LandingPage() {
           </div>
         </div>
 
-        <style>{`
-          @keyframes cr-kenburns {
-            0% { transform: scale(1.05) translate(0, 0); }
-            100% { transform: scale(1.18) translate(-2%, -2%); }
-          }
-        `}</style>
       </section>
 
       {/* ============ HOW IT WORKS ============ */}
