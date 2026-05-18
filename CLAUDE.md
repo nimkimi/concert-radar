@@ -23,6 +23,14 @@ This project was bootstrapped using `nimkimi/project-ideas/BUILD_PROCESS.md` and
 
 **Verification before merge:** invoke `superpowers:verification-before-completion`.
 
+## Repo visibility
+
+This repo is **private** (flipped 2026-05-18 after first prod deploy). This is the exception to `BUILD_PROCESS.md`'s default of public repos — the default still holds for future projects, but Concert Radar stays private going forward. Practical impact:
+
+- The `[repo](...)` link in `nimkimi/project-ideas/PROJECTS.md` was replaced with a `🔒 private` marker
+- Anyone needing access must be added via GitHub Settings → Collaborators
+- Vercel's GitHub integration is OAuth-based and continues to deploy automatically
+
 ## Current state — MVP complete (2026-05-16)
 
 All 15 plan tasks merged to `main`. 29 of 30 DoD checkboxes ticked in [SPEC.md](./SPEC.md); the one open item ([#44](https://github.com/nimkimi/concert-radar/issues/44)) is cosmetic dashboard polish.
@@ -66,12 +74,11 @@ When `TURSO_DATABASE_URL` is unset (the default for `.env.local`), Prisma uses t
    turso db show concert-radar --url              # copy → TURSO_DATABASE_URL
    turso db tokens create concert-radar           # copy → TURSO_AUTH_TOKEN
    ```
-3. **Push the schema to Turso once:**
+3. **Push the schema to Turso once.** Prisma's CLI rejects `libsql://` URLs (its SQLite provider only accepts `file:`), so pipe the existing migration SQL through the Turso shell instead:
    ```bash
-   DATABASE_URL="libsql://<your-db>.turso.io?authToken=<token>" \
-     npm run turso:push
+   cat prisma/migrations/*/migration.sql | turso db shell concert-radar
+   turso db shell concert-radar ".tables"   # verify
    ```
-   (Prisma's `db push` needs a single connection string. After this, the app uses the driver adapter and `DATABASE_URL` is ignored in prod.)
 4. **Vercel:** import the repo, then **Settings → Environment Variables**:
    - `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` (from step 2)
    - `NEXTAUTH_SECRET`, `AUTH_URL`/`NEXTAUTH_URL`, `TOKEN_ENCRYPTION_KEY`, `CRON_SECRET`
