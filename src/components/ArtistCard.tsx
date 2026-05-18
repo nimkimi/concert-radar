@@ -13,13 +13,8 @@ const FALLBACK_IMAGE =
   "data:image/svg+xml;base64," +
   Buffer.from(
     `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'>
-      <defs>
-        <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
-          <stop offset='0%' stop-color='#1db954'/>
-          <stop offset='100%' stop-color='#ff2e88'/>
-        </linearGradient>
-      </defs>
-      <rect width='400' height='400' fill='url(#g)'/>
+      <rect width='400' height='400' fill='#1a1a1a'/>
+      <circle cx='200' cy='200' r='80' fill='#1db954' fill-opacity='0.18'/>
     </svg>`,
   ).toString("base64");
 
@@ -31,71 +26,62 @@ export function ArtistCard({
   upcomingShowCount,
   isExcluded,
 }: ArtistCardProps) {
+  const hasShows = upcomingShowCount > 0;
   const showsLabel =
     upcomingShowCount === 0
       ? isExcluded
         ? "Hidden"
-        : "No upcoming"
-      : `${upcomingShowCount} upcoming show${upcomingShowCount === 1 ? "" : "s"}`;
-  const isZero = upcomingShowCount === 0;
+        : "0 upcoming"
+      : `${upcomingShowCount} upcoming`;
 
   return (
     <article
-      className="relative overflow-hidden rounded-(--radius-md) bg-(--color-surface) cursor-default"
-      style={{ aspectRatio: "1 / 1.2", transition: "transform 200ms" }}
+      className={`cr-card group relative p-4 cursor-pointer transition-all hover:-translate-y-0.5 hover:border-(--color-border-strong) ${
+        isExcluded ? "opacity-55" : ""
+      }`}
+      style={{ boxShadow: "var(--shadow-sm)" }}
     >
-      <img
-        className="absolute inset-0 w-full object-cover"
-        style={{
-          height: "70%",
-          filter: isExcluded ? "grayscale(1) brightness(0.5)" : undefined,
-        }}
-        src={imageUrl ?? FALLBACK_IMAGE}
-        alt=""
-        loading="lazy"
-      />
-      {genre && (
-        <span
-          className="absolute top-3 left-3 text-[11px] uppercase tracking-[0.1em] font-bold px-2 py-1 rounded-(--radius-pill)"
-          style={{
-            background: "rgba(0,0,0,0.6)",
-            backdropFilter: "blur(8px)",
-            maxWidth: "calc(100% - 60px)",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {genre}
-        </span>
-      )}
-      <ExcludeToggle artistId={id} initialExcluded={isExcluded} />
+      {/* Soft green glow on hover, top-left only */}
       <div
-        className="absolute inset-x-0 bottom-0 px-4 pt-3 pb-4 border-t border-(--color-border) bg-(--color-surface)"
+        aria-hidden
+        className="absolute inset-0 rounded-[14px] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(circle at 30% 0%, var(--color-green-soft), transparent 60%)",
+        }}
+      />
+      <ExcludeToggle artistId={id} initialExcluded={isExcluded} />
+
+      <div
+        className="relative aspect-square rounded-lg overflow-hidden bg-(--color-bg-subtle) mb-3.5"
+        style={{
+          filter: isExcluded ? "grayscale(1)" : undefined,
+        }}
       >
-        <div
-          className={`text-base font-bold tracking-tight ${
-            isExcluded ? "line-through text-(--color-text-dim)" : ""
-          }`}
-        >
-          {name}
-        </div>
-        <div
-          className={`text-xs mt-0.5 flex items-center gap-1.5 ${
-            isZero ? "text-(--color-text-dim)" : "text-(--color-text-muted)"
-          }`}
-        >
+        <img
+          src={imageUrl ?? FALLBACK_IMAGE}
+          alt=""
+          loading="lazy"
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.06]"
+        />
+      </div>
+      <div className="text-[15px] font-semibold tracking-[-0.015em] truncate">{name}</div>
+      <div className="text-xs text-(--color-text-dim) mt-0.5 truncate">
+        {genre ?? "—"}
+      </div>
+      <div className="flex justify-between items-center mt-3 pt-3 border-t border-(--color-border)">
+        <span className="text-xs font-medium text-(--color-text-soft)">
           <span
-            aria-hidden
-            className="w-1.5 h-1.5 rounded-full"
-            style={{
-              background: isZero
-                ? "var(--color-text-dim)"
-                : "var(--color-spotify)",
-            }}
-          />
-          {showsLabel}
-        </div>
+            className={
+              isExcluded || !hasShows
+                ? "text-(--color-text-dim)"
+                : "text-(--color-green) font-semibold"
+            }
+          >
+            {showsLabel.split(" ")[0]}
+          </span>{" "}
+          {showsLabel.split(" ").slice(1).join(" ")}
+        </span>
       </div>
     </article>
   );

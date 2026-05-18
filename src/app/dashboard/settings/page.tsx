@@ -27,16 +27,17 @@ export default async function SettingsPage() {
 
   return (
     <>
-      <AppNav activeHref="/dashboard/settings" userName={user.name ?? undefined} />
-      <main className="cr-frame">
-        <header className="pt-14 pb-10">
-          <h1
-            className="font-black uppercase leading-[0.88] tracking-[-0.05em]"
-            style={{ fontSize: "var(--text-display)" }}
-          >
-            <span className="text-(--color-spotify)">Settings</span>
-          </h1>
-        </header>
+      <AppNav activeHref="/dashboard/settings" />
+      <main className="cr-frame-narrow pt-14 pb-24">
+        <h1
+          className="font-bold tracking-[-0.035em] leading-[1.05] mb-1.5"
+          style={{ fontSize: "clamp(28px, 3.5vw, 40px)" }}
+        >
+          Settings
+        </h1>
+        <p className="text-sm text-(--color-text-dim) mb-10">
+          Configure your location, notifications, and connected account.
+        </p>
         <SettingsForm
           initial={{
             cityName: user.cityName,

@@ -31,17 +31,16 @@ export function SyncNowButton() {
 
   let label = "⟳ Sync now";
   if (pending) label = "Syncing…";
-  else if (status.kind === "rate") label = `⟳ Try again in ${Math.ceil(status.retryAfterSec / 60)}m`;
-  else if (status.kind === "error") label = "⟳ Failed — retry";
-  else if (status.kind === "done") label = status.count === 0 ? "⟳ No new shows" : `⟳ +${status.count} new`;
+  else if (status.kind === "rate") label = `Try again in ${Math.ceil(status.retryAfterSec / 60)}m`;
+  else if (status.kind === "error") label = "Failed — retry";
+  else if (status.kind === "done") label = status.count === 0 ? "No new shows" : `+${status.count} new`;
 
   return (
     <button
       type="button"
       onClick={sync}
       disabled={pending || status.kind === "rate"}
-      className="cr-btn cr-btn--ghost"
-      style={{ height: 32, padding: "0 16px", fontSize: 12 }}
+      className="text-(--color-text) hover:text-(--color-green) text-[13px] font-medium pl-2.5 ml-1 border-l border-(--color-border) disabled:opacity-60 transition-colors"
     >
       {label}
     </button>
