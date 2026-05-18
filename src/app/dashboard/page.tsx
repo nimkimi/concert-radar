@@ -2,21 +2,34 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppNav } from "@/components/AppNav";
 import { ConcertCard } from "@/components/ConcertCard";
-import { DateGroup } from "@/components/DateGroup";
+import { ConcertHero } from "@/components/ConcertHero";
 import { SyncNowButton } from "@/components/SyncNowButton";
 import { auth } from "@/lib/auth/nextauth";
 import { prisma } from "@/lib/db";
 import { getDedupedConcertsForUser } from "@/lib/sync";
+import { groupByHorizon } from "@/lib/time-horizon";
 import { normalizeArtistName } from "@/lib/normalize";
 import {
-  dateGroupKey,
-  dateGroupParts,
+  daysUntil,
   formatDistanceKm,
   formatEventTime,
+  formatLongEventDate,
   formatRelativeMinutes,
 } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
+
+function shortDatePill(d: Date, tz: string): string {
+  // "FRI · MAY 29" in venue tz
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: tz,
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  }).formatToParts(d);
+  const get = (t: string) => fmt.find((p) => p.type === t)?.value ?? "";
+  return `${get("weekday").toUpperCase()} · ${get("month").toUpperCase()} ${get("day")}`;
+}
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -42,159 +55,121 @@ export default async function DashboardPage() {
   for (const a of tracked) imageByArtist.set(normalizeArtistName(a.name), a.imageUrl);
 
   const groups = await getDedupedConcertsForUser(prisma, session.user.id);
+  const cityLabel = user.cityName ?? "you";
+  const radiusLabel = user.radiusKm === 9999 ? "country-wide" : `within ${user.radiusKm} km`;
 
-  const now = new Date();
-  const oneWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-  const thisWeek = groups.filter((g) => g.representative.eventDate <= oneWeek).length;
-
-  const radiusLabel =
-    user.radiusKm === 9999 ? "Country-wide (NO+SE+DK)" : `Within ${user.radiusKm} km`;
-
-  // Group by representative's date (in venue tz) preserving order.
-  const buckets = new Map<
-    string,
-    { date: Date; tz: string; items: typeof groups }
-  >();
-  for (const g of groups) {
-    const tz = g.representative.venueTimezone;
-    const key = dateGroupKey(g.representative.eventDate, tz);
-    const bucket = buckets.get(key);
-    if (bucket) bucket.items.push(g);
-    else buckets.set(key, { date: g.representative.eventDate, tz, items: [g] });
-  }
+  // Hero = the very next concert. Time-horizon groups exclude it.
+  const hero = groups[0] ?? null;
+  const tail = groups.slice(1);
+  const horizons = groupByHorizon(tail, (g) => g.representative.eventDate);
 
   return (
     <>
-      <AppNav activeHref="/dashboard" userName={user.name ?? undefined} />
-      <main className="cr-frame">
-        <header className="pt-14 pb-5 flex items-end justify-between gap-5 flex-wrap">
-          <h1
-            className="font-black uppercase leading-[0.88] tracking-[-0.05em] max-w-[900px]"
-            style={{ fontSize: "var(--text-display)" }}
-          >
-            <span
-              style={{ WebkitTextStroke: "2px var(--color-text)", color: "transparent" }}
+      <AppNav activeHref="/dashboard" />
+      <main className="cr-frame-wide pt-10 pb-24">
+        <div className="flex justify-between items-end gap-6 flex-wrap mb-8">
+          <div>
+            <h1
+              className="font-bold tracking-[-0.035em] leading-[1.05]"
+              style={{ fontSize: "clamp(28px, 3.5vw, 40px)" }}
             >
-              {groups.length}
-            </span>
-            <br />
-            upcoming shows near{" "}
-            <span className="text-(--color-spotify)">{user.cityName ?? "you"}</span>.
-          </h1>
-          <div className="flex flex-col items-end gap-3">
-            <div className="flex gap-2">
-              <span className="cr-chip cr-chip--accent">{radiusLabel}</span>
-            </div>
-            <div className="flex items-center gap-3 text-xs text-(--color-text-dim)">
-              <span
-                aria-hidden
-                className="w-1.5 h-1.5 rounded-full bg-(--color-spotify)"
-              />
-              Last synced {formatRelativeMinutes(user.lastConcertSyncAt)}
-              <SyncNowButton />
+              {groups.length} upcoming {groups.length === 1 ? "show" : "shows"}{" "}
+              <span className="text-(--color-green)">near {cityLabel}</span>
+            </h1>
+            <div className="text-sm text-(--color-text-dim) mt-1.5">
+              {radiusLabel} · {trackedCount} {trackedCount === 1 ? "artist" : "artists"} tracked · last synced {formatRelativeMinutes(user.lastConcertSyncAt)}
             </div>
           </div>
-        </header>
-
-        <div
-          className="grid grid-cols-2 md:grid-cols-4 border-t border-b border-(--color-border) py-4 mb-12"
-        >
-          <Stat label="Upcoming" value={String(groups.length)} />
-          <Stat label="This week" value={String(thisWeek)} valueClass="text-(--color-spotify)" />
-          <Stat label="Tracked artists" value={String(trackedCount)} />
-          <Stat label="Sources active" value="2 / 4" />
+          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-(--color-bg-subtle) border border-(--color-border) text-sm text-(--color-text-dim)">
+            <span className="cr-pulse" />
+            Live
+            <SyncNowButton />
+          </div>
         </div>
 
         {groups.length === 0 ? (
           <EmptyState />
         ) : (
-          [...buckets.entries()].map(([key, { date, tz, items }]) => {
-            const parts = dateGroupParts(date, tz);
-            const cities = new Set(items.map((g) => g.representative.venueCity));
-            const cityLabel = cities.size === 1 ? `· all in ${[...cities][0]}` : `· ${cities.size} cities`;
-            return (
-              <DateGroup
-                key={key}
-                weekday={parts.weekday}
-                day={parts.day}
-                month={parts.month}
-                rightLabel={`${items.length} ${items.length === 1 ? "show" : "shows"} ${cityLabel}`}
-              >
-                {items.map((g) => {
-                  const rep = g.representative;
-                  const img = imageByArtist.get(normalizeArtistName(rep.artistName)) ?? null;
-                  return (
-                    <ConcertCard
-                      key={g.key}
-                      href={`/dashboard/concerts/${rep.id}`}
-                      imageUrl={img}
-                      artistName={rep.artistName}
-                      venueName={rep.venueName}
-                      city={rep.venueCity}
-                      time={formatEventTime(rep.eventDate, rep.venueTimezone)}
-                      distanceLabel={formatDistanceKm(g.distanceKm)}
-                      sources={g.sources}
-                    />
-                  );
-                })}
-              </DateGroup>
-            );
-          })
-        )}
+          <>
+            {hero && (
+              <ConcertHero
+                href={`/dashboard/concerts/${hero.representative.id}`}
+                imageUrl={imageByArtist.get(normalizeArtistName(hero.representative.artistName)) ?? null}
+                artistName={hero.representative.artistName}
+                venueName={hero.representative.venueName}
+                city={hero.representative.venueCity}
+                longDate={formatLongEventDate(hero.representative.eventDate, hero.representative.venueTimezone)}
+                time={formatEventTime(hero.representative.eventDate, hero.representative.venueTimezone)}
+                timezone={hero.representative.venueTimezone}
+                distanceLabel={formatDistanceKm(hero.distanceKm)}
+                daysUntil={daysUntil(hero.representative.eventDate)}
+                sources={hero.sources}
+                ticketUrl={hero.representative.ticketUrl}
+              />
+            )}
 
-        {groups.length > 0 && (
-          <div className="py-12 text-center text-sm text-(--color-text-dim)">
-            End of feed · increase your radius in{" "}
-            <Link
-              href="/dashboard/settings"
-              className="text-(--color-spotify) underline"
-            >
-              settings
-            </Link>{" "}
-            to see more.
-          </div>
+            {horizons.length === 0 && hero && (
+              <div className="rounded-xl border border-dashed border-(--color-border-strong) bg-(--color-bg-subtle) p-12 text-center">
+                <h3 className="text-base font-semibold mb-1.5">That&apos;s your only show on the radar right now.</h3>
+                <p className="text-sm text-(--color-text-dim) max-w-md mx-auto">
+                  Tours get announced 3–6 months ahead. We&apos;ll email you the moment anything else lands.
+                </p>
+              </div>
+            )}
+
+            {horizons.map(({ horizon, meta, items }) => (
+              <section key={horizon} className="mb-12">
+                <div className="flex items-baseline justify-between mb-4">
+                  <h3 className="cr-section-label">
+                    {meta.title}
+                    <span className="count">{items.length}</span>
+                  </h3>
+                  {meta.helper && (
+                    <span className="text-xs text-(--color-text-dim)">{meta.helper}</span>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {items.map((g) => {
+                    const rep = g.representative;
+                    return (
+                      <ConcertCard
+                        key={g.key}
+                        href={`/dashboard/concerts/${rep.id}`}
+                        imageUrl={imageByArtist.get(normalizeArtistName(rep.artistName)) ?? null}
+                        artistName={rep.artistName}
+                        venueName={rep.venueName}
+                        city={rep.venueCity}
+                        datePill={shortDatePill(rep.eventDate, rep.venueTimezone)}
+                        time={formatEventTime(rep.eventDate, rep.venueTimezone)}
+                        distanceLabel={formatDistanceKm(g.distanceKm)}
+                        sources={g.sources}
+                      />
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
+          </>
         )}
       </main>
     </>
   );
 }
 
-function Stat({
-  label,
-  value,
-  valueClass,
-}: {
-  label: string;
-  value: string;
-  valueClass?: string;
-}) {
-  return (
-    <div className="px-5 border-r border-(--color-border) last:border-r-0">
-      <div className="text-[11px] uppercase tracking-[0.12em] text-(--color-text-dim) font-semibold">
-        {label}
-      </div>
-      <div
-        className={`font-extrabold tracking-[-0.03em] mt-0.5 ${valueClass ?? ""}`}
-        style={{ fontSize: 36 }}
-      >
-        {value}
-      </div>
-    </div>
-  );
-}
-
 function EmptyState() {
   return (
-    <div className="py-20 text-center">
-      <div className="text-2xl font-bold mb-3">No upcoming shows yet.</div>
-      <p className="text-(--color-text-muted) mb-6 max-w-md mx-auto">
-        We&apos;ll keep checking. You can try increasing your radius or syncing now to pull
-        fresh data from Spotify and the ticket sources.
+    <div className="rounded-xl border border-dashed border-(--color-border-strong) bg-(--color-bg-subtle) py-20 px-8 text-center">
+      <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-(--color-bg-elev) border border-(--color-border) grid place-items-center text-(--color-text-dim)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+          <circle cx="12" cy="12" r="9" />
+          <polyline points="12 7 12 12 15 14" />
+        </svg>
+      </div>
+      <h2 className="text-lg font-semibold mb-2">No upcoming shows yet.</h2>
+      <p className="text-sm text-(--color-text-soft) max-w-md mx-auto mb-6">
+        We&apos;ll keep checking every day. Try widening your radius, or hit sync to pull fresh data from Spotify and the ticket sources right now.
       </p>
-      <Link
-        href="/dashboard/settings"
-        className="cr-btn cr-btn--ghost inline-flex"
-      >
+      <Link href="/dashboard/settings" className="cr-btn cr-btn--secondary cr-btn--lg inline-flex">
         Adjust radius in settings
       </Link>
     </div>

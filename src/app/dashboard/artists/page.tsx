@@ -29,7 +29,6 @@ export default async function ArtistsPage() {
     orderBy: [{ isExcluded: "asc" }, { name: "asc" }],
   });
 
-  // Count upcoming concerts per normalized artist name.
   const now = new Date();
   const upcoming = await prisma.concert.findMany({
     where: { eventDate: { gt: now }, status: { not: "CANCELLED" } },
@@ -43,48 +42,37 @@ export default async function ArtistsPage() {
 
   const tracked = artists.length;
   const excluded = artists.filter((a) => a.isExcluded).length;
-  const withShows = artists.filter(
-    (a) => !a.isExcluded && (showCount.get(normalizeArtistName(a.name)) ?? 0) > 0,
-  ).length;
 
   return (
     <>
-      <AppNav activeHref="/dashboard/artists" userName={user.name ?? undefined} />
-      <main className="cr-frame">
-        <header className="pt-14 pb-5 flex items-end justify-between gap-5 flex-wrap">
-          <h1
-            className="font-black uppercase leading-[0.88] tracking-[-0.05em]"
-            style={{ fontSize: "var(--text-display)" }}
-          >
-            Your <span className="text-(--color-spotify)">artists</span>.
-          </h1>
+      <AppNav activeHref="/dashboard/artists" />
+      <main className="cr-frame-wide pt-10 pb-24">
+        <div className="flex justify-between items-end gap-6 flex-wrap mb-12">
+          <div>
+            <h1
+              className="font-bold tracking-[-0.035em] leading-[1.05]"
+              style={{ fontSize: "clamp(28px, 3.5vw, 40px)" }}
+            >
+              <span className="text-(--color-green)">{tracked}</span>{" "}
+              {tracked === 1 ? "artist" : "artists"} on the radar
+            </h1>
+            <div className="text-sm text-(--color-text-dim) mt-1.5">
+              Pulled from your Spotify · {excluded} {excluded === 1 ? "hidden" : "hidden"} · last sync {formatRelativeMinutes(user.lastArtistSyncAt)}
+            </div>
+          </div>
           <ResyncArtistsButton />
-        </header>
-
-        <div className="flex gap-10 pt-5 pb-6 border-t border-(--color-border) mb-6 flex-wrap">
-          <SummaryStat value={String(tracked)} label="Tracked" />
-          <SummaryStat
-            value={String(withShows)}
-            label="With shows"
-            valueColor="var(--color-spotify)"
-          />
-          <SummaryStat
-            value={String(excluded)}
-            label="Excluded"
-            valueColor="var(--color-text-muted)"
-          />
-          <SummaryStat
-            value={formatRelativeMinutes(user.lastArtistSyncAt)}
-            label="Last synced"
-            valueColor="var(--color-magenta)"
-            small
-          />
         </div>
+
+        {/*
+          Phase B reskin. Source-by-source grouping (Top listened / Followed /
+          Saved albums) needs a `source` column on TrackedArtist — that lands
+          in Phase C. For now: flat A→Z list with v2 card styling.
+        */}
 
         {tracked === 0 ? (
           <EmptyState />
         ) : (
-          <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 pb-20">
+          <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {artists.map((a) => (
               <ArtistCard
                 key={a.id}
@@ -98,50 +86,69 @@ export default async function ArtistsPage() {
             ))}
           </section>
         )}
+
+        <details className="cr-card mt-10 p-7 max-w-[760px]">
+          <summary className="list-none cursor-pointer flex items-center gap-2.5 text-sm font-medium">
+            <span className="w-6 h-6 rounded-full bg-(--color-green-soft) text-(--color-green) grid place-items-center flex-shrink-0">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 16v-4M12 8h.01" />
+              </svg>
+            </span>
+            How we pick these
+            <span className="ml-auto text-(--color-text-dim)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </span>
+          </summary>
+          <div className="mt-4 pt-4 border-t border-(--color-border) grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <h4 className="text-sm font-semibold mb-1.5">
+                <span className="inline-block text-[10px] font-semibold uppercase tracking-[0.06em] px-1.5 py-0.5 rounded mr-1.5 bg-(--color-bg-subtle) text-(--color-text-soft)">i</span>
+                Top tier
+              </h4>
+              <p className="text-[13px] text-(--color-text-soft) leading-[1.55]">
+                Your top 20 most-played artists from Spotify over the last 6 months.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold mb-1.5">
+                <span className="inline-block text-[10px] font-semibold uppercase tracking-[0.06em] px-1.5 py-0.5 rounded mr-1.5 bg-(--color-bg-subtle) text-(--color-text-soft)">ii</span>
+                Followed
+              </h4>
+              <p className="text-[13px] text-(--color-text-soft) leading-[1.55]">
+                Artists you&apos;ve explicitly followed on Spotify.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold mb-1.5">
+                <span className="inline-block text-[10px] font-semibold uppercase tracking-[0.06em] px-1.5 py-0.5 rounded mr-1.5 bg-(--color-bg-subtle) text-(--color-text-soft)">iii</span>
+                Saved albums
+              </h4>
+              <p className="text-[13px] text-(--color-text-soft) leading-[1.55]">
+                Artists derived from albums you&apos;ve saved to your library.
+              </p>
+            </div>
+          </div>
+        </details>
       </main>
     </>
   );
 }
 
-function SummaryStat({
-  value,
-  label,
-  valueColor,
-  small,
-}: {
-  value: string;
-  label: string;
-  valueColor?: string;
-  small?: boolean;
-}) {
-  return (
-    <div>
-      <div
-        className="font-black leading-none tracking-[-0.04em]"
-        style={{
-          fontSize: small ? 36 : 56,
-          color: valueColor,
-        }}
-      >
-        {value}
-      </div>
-      <div className="text-[11px] uppercase tracking-[0.12em] text-(--color-text-muted) font-bold mt-2">
-        {label}
-      </div>
-    </div>
-  );
-}
-
 function EmptyState() {
   return (
-    <div className="py-20 text-center text-(--color-text-muted)">
-      <div className="text-2xl font-bold mb-3 text-(--color-text)">
-        No tracked artists yet.
+    <div className="rounded-xl border border-dashed border-(--color-border-strong) bg-(--color-bg-subtle) py-20 px-8 text-center">
+      <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-(--color-bg-elev) border border-(--color-border) grid place-items-center text-(--color-text-dim)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" />
+        </svg>
       </div>
-      <p className="max-w-md mx-auto mb-6">
-        Hit{" "}
-        <span className="text-(--color-spotify-bright)">Re-sync from Spotify</span>{" "}
-        above to pull your top + followed artists.
+      <h2 className="text-lg font-semibold mb-2">No tracked artists yet.</h2>
+      <p className="text-sm text-(--color-text-soft) max-w-md mx-auto">
+        Hit Re-sync from Spotify above to pull your top + followed artists.
       </p>
     </div>
   );

@@ -32,23 +32,12 @@ const STATUS_LABEL = {
   POSTPONED: "Postponed",
 } as const;
 
-const STATUS_COLOR = {
-  UPCOMING: "var(--color-spotify)",
-  CANCELLED: "var(--color-source-bandsintown)",
-  POSTPONED: "var(--color-gold)",
-} as const;
-
 const FALLBACK_HERO =
   "data:image/svg+xml;base64," +
   Buffer.from(
-    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2000 1200'>
-      <defs>
-        <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
-          <stop offset='0%' stop-color='#1db954'/>
-          <stop offset='100%' stop-color='#5b3ff5'/>
-        </linearGradient>
-      </defs>
-      <rect width='2000' height='1200' fill='url(#g)'/>
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1200'>
+      <rect width='1000' height='1200' fill='#1a1a1a'/>
+      <circle cx='500' cy='600' r='280' fill='#1db954' fill-opacity='0.12'/>
     </svg>`,
   ).toString("base64");
 
@@ -64,8 +53,6 @@ export default async function ConcertDetailPage({
   const representative = await prisma.concert.findUnique({ where: { id } });
   if (!representative) notFound();
 
-  // Find every Concert row that lives in the same dedup group (same
-  // normalized artist + city + day) so we can list every source for this show.
   const dayStart = new Date(representative.eventDate);
   dayStart.setUTCHours(0, 0, 0, 0);
   const dayEnd = new Date(dayStart);
@@ -98,7 +85,6 @@ export default async function ConcertDetailPage({
   ]);
   if (!user) redirect("/");
 
-  // Match the artist by normalized name (#27 will push this to SQL).
   const heroImage =
     allTracked.find((a) => normalizeArtistName(a.name) === repNorm)?.imageUrl ?? null;
 
@@ -120,230 +106,166 @@ export default async function ConcertDetailPage({
   const dUntil = daysUntil(representative.eventDate);
   const status = representative.status;
 
+  const inDays =
+    dUntil <= 0 ? "Tonight" : dUntil === 1 ? "Tomorrow" : `In ${dUntil} days`;
+
   return (
     <>
-      <AppNav activeHref="/dashboard" userName={user.name ?? undefined} />
+      <AppNav activeHref="/dashboard" />
 
-      <div className="relative overflow-hidden" style={{ height: "60vh", minHeight: 480 }}>
-        <img
-          src={heroImage ?? FALLBACK_HERO}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ transform: "scale(1.05)", filter: "saturate(1.1)" }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(10,10,10,0.4) 0%, rgba(10,10,10,0.2) 40%, var(--color-bg) 100%)",
-          }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(circle at 50% 80%, rgba(255, 46, 136, 0.25), transparent 50%)",
-            mixBlendMode: "screen",
-          }}
-        />
-        <Link
-          href="/dashboard"
-          className="cr-btn cr-btn--ghost absolute"
-          style={{ top: 20, left: 40, zIndex: 3 }}
-        >
-          ← Back
-        </Link>
+      <div className="cr-frame pt-6 flex gap-2 text-sm text-(--color-text-dim)">
+        <Link href="/dashboard" className="hover:text-(--color-green) transition-colors">Dashboard</Link>
+        <span className="text-(--color-border-strong)">/</span>
+        <span>{representative.artistName}</span>
       </div>
 
-      <main className="cr-frame">
-        <div className="relative z-[2]" style={{ marginTop: -200, paddingBottom: 56 }}>
-          <div className="flex gap-2 mb-4">
-            {sources.map((s) => (
-              <SourceBadge key={s} source={s} size="full" />
-            ))}
-          </div>
-          <h1
-            className="font-black uppercase leading-[0.85] tracking-[-0.06em]"
-            style={{ fontSize: "clamp(56px, 12vw, 180px)" }}
+      <main className="cr-frame pt-6 pb-24">
+        <section className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-12 items-start mb-14">
+          <div
+            className="aspect-[4/5] rounded-2xl overflow-hidden bg-(--color-bg-subtle) relative"
+            style={{ boxShadow: "var(--shadow-lg)" }}
           >
-            <span className="text-(--color-spotify)">{representative.artistName}</span>
-          </h1>
-          <div className="flex gap-5 items-center mt-5 text-(--color-text-muted) text-[15px] flex-wrap">
-            <span>
-              {longDate} · {time}
-            </span>
-            <span className="text-(--color-text-dim)">·</span>
-            <span>
-              {representative.venueName}, {representative.venueCity}
-            </span>
-            {distLabel && (
-              <>
-                <span className="text-(--color-text-dim)">·</span>
-                <span>{distLabel}</span>
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="grid lg:grid-cols-[2fr_1fr] gap-10 pb-20">
-          <div>
-            <InfoBlock label="Venue">
-              <div
-                className="grid items-center p-4 border border-(--color-border) bg-(--color-surface)"
+            <img
+              src={heroImage ?? FALLBACK_HERO}
+              alt=""
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute top-4 right-4 flex gap-1.5">
+              <span
+                className="px-3 py-1.5 rounded-full text-xs font-semibold text-white"
                 style={{
-                  gridTemplateColumns: "100px 1fr",
-                  gap: 16,
-                  borderRadius: "var(--radius-md)",
+                  backdropFilter: "blur(10px)",
+                  background: "rgba(0,0,0,0.55)",
                 }}
               >
-                <div
-                  style={{
-                    width: 100,
-                    height: 100,
-                    borderRadius: "var(--radius-sm)",
-                    background:
-                      "radial-gradient(circle at 60% 50%, var(--color-spotify) 0%, var(--color-spotify) 4px, transparent 5px), linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%)",
-                  }}
-                />
-                <div>
-                  <div className="text-lg font-bold">{representative.venueName}</div>
-                  <div className="text-sm text-(--color-text-muted) mt-0.5 leading-snug">
-                    {representative.venueCity}, {representative.venueCountry}
-                  </div>
-                </div>
-              </div>
-            </InfoBlock>
-
-            <InfoBlock label="When (venue local time)">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div>
-                  <div className="text-[22px] font-semibold tracking-tight">
-                    {longDate}
-                  </div>
-                  <div className="text-sm text-(--color-text-muted) mt-1">{time}</div>
-                </div>
-                <div>
-                  <div className="text-[22px] font-semibold tracking-tight">
-                    {dUntil <= 0 ? "Today" : `In ${dUntil} day${dUntil === 1 ? "" : "s"}`}
-                  </div>
-                  <div className="text-sm text-(--color-text-muted) mt-1">
-                    Time zone: {tz}
-                  </div>
-                </div>
-              </div>
-            </InfoBlock>
-
-            <InfoBlock label="Sources tracking this show">
-              <div className="flex flex-col gap-3">
-                {groupRows.map((row) => (
-                  <div
-                    key={row.id}
-                    className="flex items-center justify-between p-3 px-4 border border-(--color-border) rounded-(--radius-md)"
-                  >
-                    <div className="flex items-center gap-3">
-                      <SourceBadge source={row.source} />
-                      <div>
-                        <div className="font-semibold">{SOURCE_LABEL[row.source]}</div>
-                        {row.ticketUrl && (
-                          <div className="text-xs text-(--color-text-dim) mt-0.5 max-w-[400px] truncate">
-                            {prettyHost(row.ticketUrl)}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    {row.ticketUrl && (
-                      <a
-                        href={row.ticketUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="cr-btn cr-btn--ghost"
-                        style={{ height: 36, padding: "0 16px", fontSize: 13 }}
-                      >
-                        Open ↗
-                      </a>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </InfoBlock>
+                {inDays}
+              </span>
+            </div>
           </div>
 
-          <aside
-            className="lg:sticky lg:top-[100px] h-fit p-6 border border-(--color-border)"
-            style={{
-              borderRadius: "var(--radius-lg)",
-              background: "rgba(30,30,30,0.4)",
-              backdropFilter: "blur(12px)",
-            }}
-          >
-            {winnerRow.ticketUrl ? (
-              <a
-                href={winnerRow.ticketUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="cr-btn cr-btn--spotify w-full block text-center"
-              >
-                Get Tickets →
-              </a>
-            ) : (
-              <button
-                type="button"
-                disabled
-                className="cr-btn cr-btn--spotify w-full"
-              >
-                No ticket link
-              </button>
-            )}
-            <div className="mt-3">
+          <div className="pt-2">
+            <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.06em] text-(--color-green) mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-(--color-green)" />
+              {status === "UPCOMING" ? "Up next from your radar" : STATUS_LABEL[status]}
+            </span>
+            <h1
+              className="font-bold tracking-[-0.04em] leading-none mb-3"
+              style={{ fontSize: "clamp(40px, 5vw, 64px)" }}
+            >
+              {representative.artistName}
+            </h1>
+            <p className="text-[17px] text-(--color-text-soft) mb-8 leading-[1.6]">
+              {representative.venueName} · {representative.venueCity}
+            </p>
+
+            <div className="cr-card overflow-hidden mb-7">
+              <DetailRow k="Date" v={`${longDate} · ${time}`} sub={tz} />
+              <DetailRow k="Distance" v={distLabel ?? "—"} sub={distLabel ? undefined : "Set your city in settings to see distance"} />
+              <DetailRow k="Venue" v={representative.venueName} sub={`${representative.venueCity}, ${representative.venueCountry}`} />
+              <DetailRow k="Status" v={STATUS_LABEL[status]} last />
+            </div>
+
+            <div className="flex gap-1.5 mb-6">
+              {sources.map((s) => (
+                <SourceBadge key={s} source={s} size="full" />
+              ))}
+            </div>
+
+            <div className="flex gap-2.5 flex-wrap mb-6">
+              {winnerRow.ticketUrl ? (
+                <a
+                  href={winnerRow.ticketUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="cr-btn cr-btn--primary cr-btn--lg"
+                >
+                  Get tickets on {SOURCE_LABEL[winnerSource]}
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M7 17L17 7M7 7h10v10" /></svg>
+                </a>
+              ) : (
+                <button type="button" disabled className="cr-btn cr-btn--secondary cr-btn--lg">
+                  No ticket link
+                </button>
+              )}
               <ShareButton
                 title={`${representative.artistName} — ${representative.venueName}`}
                 text={`${representative.artistName} at ${representative.venueName}, ${representative.venueCity} · ${longDate}`}
-                className="cr-btn cr-btn--ghost w-full"
+                className="cr-btn cr-btn--secondary cr-btn--lg"
               />
             </div>
-            <div className="h-px bg-(--color-border) my-5" />
-            <SidebarRow label="Source priority" value={SOURCE_LABEL[winnerSource]} />
-            <SidebarRow
-              label="Status"
-              value={
-                <span style={{ color: STATUS_COLOR[status] }}>
-                  ● {STATUS_LABEL[status]}
-                </span>
-              }
-            />
-            <SidebarRow
-              label="First found"
-              value={formatRelativeMinutes(representative.createdAt)}
-            />
-          </aside>
-        </div>
+
+            <div className="text-[13px] text-(--color-text-dim) pt-6 border-t border-(--color-border)">
+              First seen <strong className="text-(--color-text-soft) font-medium">{formatRelativeMinutes(representative.createdAt)}</strong> via {SOURCE_LABEL[winnerSource]}.
+              We re-check daily — if it gets cancelled or rescheduled, we&apos;ll email you.
+            </div>
+          </div>
+        </section>
+
+        {groupRows.length > 1 && (
+          <section className="mb-14">
+            <h3 className="cr-section-label mb-4">All sources tracking this show</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {groupRows.map((row) => (
+                <div
+                  key={row.id}
+                  className="flex items-center gap-4 p-4 border border-(--color-border) rounded-xl bg-(--color-bg-elev)"
+                >
+                  <SourceBadge source={row.source} size="full" />
+                  <div className="flex-1 min-w-0">
+                    {row.ticketUrl && (
+                      <div className="text-xs text-(--color-text-dim) truncate">
+                        {prettyHost(row.ticketUrl)}
+                      </div>
+                    )}
+                  </div>
+                  {row.ticketUrl && (
+                    <a
+                      href={row.ticketUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="cr-btn cr-btn--ghost text-xs"
+                    >
+                      Open ↗
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
     </>
   );
 }
 
-function InfoBlock({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="py-6 border-t border-(--color-border) first:border-t-0 first:pt-0">
-      <div className="text-[11px] uppercase tracking-[0.16em] text-(--color-text-dim) font-bold mb-3">
-        {label}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function SidebarRow({
-  label,
-  value,
+function DetailRow({
+  k,
+  v,
+  sub,
+  last = false,
 }: {
-  label: string;
-  value: React.ReactNode;
+  k: string;
+  v: React.ReactNode;
+  sub?: string;
+  last?: boolean;
 }) {
   return (
-    <div className="flex justify-between text-sm py-2">
-      <span className="text-(--color-text-muted)">{label}</span>
-      <span>{value}</span>
+    <div
+      className={`grid grid-cols-[40%_1fr] px-5 py-3.5 ${
+        last ? "" : "border-b border-(--color-border)"
+      }`}
+    >
+      <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-(--color-text-dim) self-start pt-0.5">
+        {k}
+      </span>
+      <span className="font-medium text-[15px]">
+        {v}
+        {sub && (
+          <span className="block text-xs font-normal text-(--color-text-dim) mt-0.5">
+            {sub}
+          </span>
+        )}
+      </span>
     </div>
   );
 }

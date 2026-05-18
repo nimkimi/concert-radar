@@ -17,11 +17,11 @@ export type SettingsInitial = {
   email: string | null;
 };
 
-const RADIUS_OPTIONS: { value: RadiusValue; display: string; label: string }[] = [
-  { value: 25, display: "25", label: "km" },
-  { value: 50, display: "50", label: "km" },
-  { value: 100, display: "100", label: "km" },
-  { value: 9999, display: "NO+", label: "Country-wide" },
+const RADIUS_OPTIONS: { value: RadiusValue; label: string }[] = [
+  { value: 25, label: "25 km" },
+  { value: 50, label: "50 km" },
+  { value: 100, label: "100 km" },
+  { value: 9999, label: "Country-wide" },
 ];
 
 const COUNTRY_NAME: Record<string, string> = {
@@ -125,37 +125,26 @@ export function SettingsForm({ initial }: { initial: SettingsInitial }) {
   }
 
   return (
-    <div className="grid gap-8 md:grid-cols-[220px_1fr] pb-16">
-      <nav
-        className="hidden md:flex flex-col gap-1 border-l border-(--color-border) pl-4 sticky top-24 self-start"
-        aria-label="Settings sections"
+    <div className="flex flex-col gap-5 pb-6">
+      {/* LOCATION */}
+      <Panel
+        title="Where you live"
+        sub="We use this to compute distance to each venue and to filter the daily sync."
       >
-        {[
-          ["#location", "Location", true],
-          ["#radius", "Radius", false],
-          ["#notifications", "Notifications", false],
-          ["#account", "Account", false],
-          ["#danger", "Danger zone", false],
-        ].map(([href, label, active]) => (
-          <a
-            key={href as string}
-            href={href as string}
-            className={
-              active
-                ? "py-2 text-sm font-semibold border-l-2 border-(--color-spotify) -ml-4 pl-4 text-(--color-text)"
-                : "py-2 text-sm text-(--color-text-muted) hover:text-(--color-text)"
-            }
-          >
-            {label}
-          </a>
-        ))}
-      </nav>
-
-      <div>
-        <Section id="location" title="Location" desc="Your home city. We use this to calculate the distance to every concert. Start typing to search; we cover Norway, Sweden, and Denmark.">
-          <div className="relative max-w-[480px]">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="city" className="text-[13px] font-medium text-(--color-text-soft)">
+            City
+          </label>
+          <div className="relative">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-(--color-text-dim) pointer-events-none">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </span>
             <input
-              className="w-full h-14 px-5 bg-(--color-surface) border border-(--color-border-strong) rounded-(--radius-md) text-(--color-text) text-lg font-semibold outline-none focus:border-(--color-spotify) transition-colors"
+              id="city"
+              className="w-full pl-10 pr-4 py-3 bg-(--color-bg) border border-(--color-border) rounded-lg text-(--color-text) text-sm font-medium outline-none focus:border-(--color-green) hover:border-(--color-border-strong) transition-colors"
               type="text"
               value={cityQuery}
               placeholder="Search for your city…"
@@ -170,20 +159,23 @@ export function SettingsForm({ initial }: { initial: SettingsInitial }) {
               aria-expanded={showSuggestions && suggestions.length > 0}
             />
             {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-[calc(100%+6px)] left-0 right-0 bg-(--color-surface) border border-(--color-border-strong) rounded-(--radius-md) overflow-hidden z-10">
+              <div
+                className="absolute top-[calc(100%+6px)] left-0 right-0 bg-(--color-bg-elev) border border-(--color-border) rounded-lg p-1.5 z-10"
+                style={{ boxShadow: "var(--shadow-md)" }}
+              >
                 {suggestions.map((p, i) => (
                   <button
                     key={`${p.name}-${p.lat}-${p.lon}-${i}`}
                     type="button"
-                    className="w-full flex items-center justify-between px-4 py-3 border-t border-(--color-border) first:border-t-0 hover:bg-(--color-surface-2) text-left"
+                    className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-md hover:bg-(--color-bg-subtle) text-left text-sm"
                     onMouseDown={(e) => {
                       e.preventDefault();
                       chooseCity(p);
                     }}
                   >
-                    <span className="font-semibold">{p.name}</span>
-                    <span className="text-xs text-(--color-text-muted)">
-                      {COUNTRY_NAME[p.country] ?? p.country} · {p.country}
+                    <span className="font-medium">{p.name}</span>
+                    <span className="text-xs text-(--color-text-dim)">
+                      {COUNTRY_NAME[p.country] ?? p.country}
                     </span>
                   </button>
                 ))}
@@ -191,194 +183,217 @@ export function SettingsForm({ initial }: { initial: SettingsInitial }) {
             )}
           </div>
           {selected && (
-            <p className="mt-3 text-xs text-(--color-text-muted)">
+            <span className="text-xs text-(--color-text-dim)">
               Pinned to {selected.lat.toFixed(3)}, {selected.lon.toFixed(3)}
-            </p>
+            </span>
           )}
-        </Section>
+        </div>
 
-        <Section id="radius" title="Radius" desc="How far you'll travel. Country-wide includes Sweden + Denmark (Copenhagen, Stockholm and beyond).">
-          <div className="grid grid-cols-4 bg-(--color-surface) border border-(--color-border-strong) rounded-(--radius-md) overflow-hidden max-w-[600px]">
-            {RADIUS_OPTIONS.map((opt, idx) => {
+        <div className="flex flex-col gap-1.5 mt-5">
+          <label className="text-[13px] font-medium text-(--color-text-soft)">Radius</label>
+          <div className="flex gap-1 p-1 bg-(--color-bg-subtle) rounded-xl">
+            {RADIUS_OPTIONS.map((opt) => {
               const active = radius === opt.value;
               return (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={() => setRadius(opt.value)}
-                  className={
-                    "flex flex-col items-center justify-center px-3 py-4 transition-colors cursor-pointer " +
-                    (idx < RADIUS_OPTIONS.length - 1 ? "border-r border-(--color-border) " : "") +
-                    (active
-                      ? "bg-(--color-spotify) text-black"
-                      : "hover:bg-(--color-surface-2)")
-                  }
+                  className={`flex-1 py-2.5 px-3 rounded-lg text-[13px] font-medium transition-all ${
+                    active
+                      ? "bg-(--color-bg-elev) text-(--color-text)"
+                      : "bg-transparent text-(--color-text-soft) hover:text-(--color-text)"
+                  }`}
+                  style={active ? { boxShadow: "0 1px 3px rgba(0,0,0,0.06)" } : undefined}
                   aria-pressed={active}
                 >
-                  <span className="text-2xl font-extrabold tracking-tight">{opt.display}</span>
-                  <span
-                    className={
-                      "text-[11px] uppercase tracking-[0.1em] mt-0.5 " +
-                      (active ? "text-black/70" : "text-(--color-text-muted)")
-                    }
-                  >
-                    {opt.label}
-                  </span>
+                  {opt.label}
                 </button>
               );
             })}
           </div>
-        </Section>
-
-        <Section id="notifications" title="Notifications" desc="When we find a new concert by an artist you follow, how do you want to hear about it?">
-          <ToggleRow
-            label="Email notifications"
-            sub="Master switch. When off, we sync but stay silent."
-            value={notificationsEnabled}
-            onChange={setNotificationsEnabled}
-          />
-          <div className="mt-5">
-            <div className="text-base font-semibold mb-3">Frequency</div>
-            <div className="grid grid-cols-2 bg-(--color-surface) border border-(--color-border-strong) rounded-(--radius-md) overflow-hidden max-w-[480px]">
-              {([
-                { v: "DAILY_DIGEST", t: "Daily digest", d: "One email per day. Only if there's new stuff." },
-                { v: "INSTANT", t: "Instant", d: "One email per concert as we find it." },
-              ] as const).map((o, i) => {
-                const active = frequency === o.v;
-                return (
-                  <button
-                    key={o.v}
-                    type="button"
-                    disabled={!notificationsEnabled}
-                    onClick={() => setFrequency(o.v)}
-                    className={
-                      "px-5 py-4 text-left transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed " +
-                      (i === 0 ? "border-r border-(--color-border) " : "") +
-                      (active
-                        ? "bg-(--color-spotify) text-black"
-                        : "hover:bg-(--color-surface-2)")
-                    }
-                    aria-pressed={active}
-                  >
-                    <div className="font-bold text-[15px]">{o.t}</div>
-                    <div
-                      className={
-                        "text-xs mt-0.5 " +
-                        (active ? "text-black/70" : "text-(--color-text-muted)")
-                      }
-                    >
-                      {o.d}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </Section>
-
-        <Section id="account" title="Account" desc="Authenticated via Spotify. Your email comes from your Spotify profile and can't be edited here.">
-          <div className="flex items-center gap-4 p-5 border border-(--color-border) rounded-(--radius-md) bg-(--color-surface) max-w-[600px]">
-            <div
-              className="w-14 h-14 rounded-full"
-              style={{
-                background:
-                  "linear-gradient(135deg, var(--color-magenta), var(--color-spotify))",
-              }}
-              aria-hidden
-            />
-            <div>
-              <div className="font-bold text-[17px]">{initial.displayName ?? "Spotify user"}</div>
-              <div className="text-xs text-(--color-text-muted) mt-0.5">
-                {initial.email || "no email on Spotify profile"}
-              </div>
-            </div>
-            <div className="ml-auto text-xs text-(--color-spotify-bright) flex items-center gap-2">
-              <span
-                aria-hidden
-                className="w-2 h-2 rounded-full bg-(--color-spotify-bright)"
-              />
-              Connected
-            </div>
-          </div>
-        </Section>
-
-        <section
-          id="danger"
-          className="pb-7"
-          aria-labelledby="danger-title"
-        >
-          <h2
-            id="danger-title"
-            className="text-[28px] font-extrabold tracking-tight text-(--color-source-bandsintown)"
-          >
-            Danger zone
-          </h2>
-          <p className="text-sm text-(--color-text-muted) mt-2 mb-5 max-w-[560px] leading-relaxed">
-            Deleting your account removes your tracked artists, notification history, and Spotify tokens. Concerts other people might be tracking stay in the database.
-          </p>
-          <div
-            className="p-5 border rounded-(--radius-md) max-w-[600px]"
-            style={{
-              borderColor: "var(--color-source-bandsintown)",
-              background: "rgba(255, 79, 79, 0.06)",
-            }}
-          >
-            <div className="font-bold text-(--color-source-bandsintown)">
-              Disconnect Spotify & delete account
-            </div>
-            <div className="text-xs text-(--color-text-muted) mt-2 mb-4 leading-relaxed">
-              This action cannot be undone. You'll have to reconnect Spotify and re-sync your artists to come back.
-            </div>
-            <button type="button" className="cr-btn cr-btn--danger" onClick={deleteAccount}>
-              Delete my account
-            </button>
-          </div>
-        </section>
-
-        <div className="sticky bottom-0 mt-10 -mx-8 px-8 py-4 bg-(--color-bg)/85 backdrop-blur border-t border-(--color-border) flex items-center gap-4 z-10">
-          <button
-            type="button"
-            onClick={save}
-            disabled={pending || !selected}
-            className="cr-btn cr-btn--primary disabled:opacity-50"
-          >
-            {status === "saving" ? "Saving…" : "Save changes"}
-          </button>
-          {status === "saved" && (
-            <span className="text-sm text-(--color-spotify-bright)">Saved.</span>
-          )}
-          {status === "error" && (
-            <span className="text-sm text-(--color-source-bandsintown)">
-              {selected ? "Something went wrong. Try again." : "Pick a city first."}
-            </span>
-          )}
+          <span className="text-xs text-(--color-text-dim) mt-0.5">
+            Country-wide pulls events from Norway, Sweden, and Denmark.
+          </span>
         </div>
+      </Panel>
+
+      {/* NOTIFICATIONS */}
+      <Panel
+        title="Email notifications"
+        sub="When and how we reach out. We never email when there's nothing to say."
+      >
+        <ToggleRow
+          label="Notifications"
+          sub="Master switch. Turn this off and we'll stop emailing entirely."
+          value={notificationsEnabled}
+          onChange={setNotificationsEnabled}
+        />
+
+        <div className="flex flex-col gap-1.5 mt-5">
+          <label className="text-[13px] font-medium text-(--color-text-soft)">Frequency</label>
+          <div className="flex flex-col gap-2">
+            {(
+              [
+                {
+                  v: "DAILY_DIGEST",
+                  title: "Daily digest",
+                  desc: "One email per day at 07:00 — only when there's new shows.",
+                  meta: "07:00 CEST",
+                },
+                {
+                  v: "INSTANT",
+                  title: "Instant alerts",
+                  desc: "The moment a new show drops, you get an email.",
+                  meta: "Real-time",
+                },
+              ] as const
+            ).map((o) => {
+              const active = frequency === o.v;
+              return (
+                <button
+                  key={o.v}
+                  type="button"
+                  onClick={() => setFrequency(o.v)}
+                  disabled={!notificationsEnabled}
+                  className={`flex items-start gap-3 px-4 py-3.5 rounded-lg border text-left transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                    active
+                      ? "border-(--color-green) bg-(--color-green-soft)"
+                      : "border-(--color-border) hover:border-(--color-border-strong)"
+                  }`}
+                  aria-pressed={active}
+                >
+                  <span
+                    className={`w-4 h-4 rounded-full mt-0.5 flex-shrink-0 relative ${
+                      active
+                        ? "border-2 border-(--color-green)"
+                        : "border-2 border-(--color-border-strong)"
+                    }`}
+                  >
+                    {active && (
+                      <span
+                        className="absolute rounded-full"
+                        style={{
+                          inset: 2,
+                          background: "var(--color-green)",
+                        }}
+                      />
+                    )}
+                  </span>
+                  <span className="flex-1">
+                    <span className="block text-sm font-medium">{o.title}</span>
+                    <span className="block text-[13px] text-(--color-text-dim) mt-0.5">{o.desc}</span>
+                  </span>
+                  <span className="text-xs text-(--color-text-dim) font-medium">{o.meta}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </Panel>
+
+      {/* ACCOUNT */}
+      <Panel
+        title="Connected account"
+        sub="Read-only Spotify connection. We never modify your playlists or library."
+      >
+        <div className="flex items-center gap-3.5 p-4 rounded-lg bg-(--color-bg) border border-(--color-border)">
+          <div
+            className="w-9 h-9 rounded-full flex-shrink-0"
+            style={{
+              background: "linear-gradient(135deg, var(--color-green), #19a448)",
+            }}
+            aria-hidden
+          />
+          <div className="flex-1">
+            <div className="text-sm font-medium">
+              {initial.displayName ?? "Spotify user"}
+            </div>
+            <div className="text-xs text-(--color-text-dim) mt-0.5">
+              {initial.email || "no email on Spotify profile"}
+            </div>
+          </div>
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-(--color-green) px-2.5 py-1 rounded-full bg-(--color-green-soft)">
+            <span className="w-1.5 h-1.5 rounded-full bg-(--color-green)" />
+            Connected
+          </span>
+        </div>
+      </Panel>
+
+      {/* DANGER */}
+      <Panel
+        title="Danger zone"
+        sub="These actions can't be undone."
+        danger
+      >
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <h3 className="text-sm font-medium">Delete account</h3>
+            <p className="text-[13px] text-(--color-text-dim) mt-0.5 leading-[1.5]">
+              Removes your account, history, encrypted tokens, and all notification logs. Permanent.
+            </p>
+          </div>
+          <button type="button" onClick={deleteAccount} className="cr-btn cr-btn--danger flex-shrink-0">
+            Delete account
+          </button>
+        </div>
+      </Panel>
+
+      {/* SAVE BAR */}
+      <div
+        className="sticky bottom-6 flex justify-end gap-2.5 p-3 mt-6 bg-(--color-bg-elev) border border-(--color-border) rounded-xl"
+        style={{ boxShadow: "var(--shadow-md)" }}
+      >
+        {status === "saved" && (
+          <span className="text-sm text-(--color-green) font-medium px-3 self-center">
+            ✓ Saved
+          </span>
+        )}
+        {status === "error" && (
+          <span className="text-sm text-(--color-red) px-3 self-center">
+            {selected ? "Something went wrong" : "Pick a city first"}
+          </span>
+        )}
+        <button type="button" className="cr-btn cr-btn--secondary">
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={save}
+          disabled={pending || !selected}
+          className="cr-btn cr-btn--primary"
+        >
+          {status === "saving" ? "Saving…" : "Save changes"}
+        </button>
       </div>
     </div>
   );
 }
 
-function Section({
-  id,
+function Panel({
   title,
-  desc,
+  sub,
   children,
+  danger = false,
 }: {
-  id: string;
   title: string;
-  desc: string;
+  sub: string;
   children: React.ReactNode;
+  danger?: boolean;
 }) {
   return (
     <section
-      id={id}
-      className="pb-7 border-b border-(--color-border) mb-7"
+      className={`cr-card overflow-hidden ${
+        danger ? "border-[rgba(217,45,32,0.25)] dark:border-[rgba(248,113,113,0.25)]" : ""
+      }`}
     >
-      <h2 className="text-[28px] font-extrabold tracking-tight">{title}</h2>
-      <p className="text-sm text-(--color-text-muted) mt-2 mb-5 max-w-[560px] leading-relaxed">
-        {desc}
-      </p>
-      {children}
+      <div className="px-6 py-5 border-b border-(--color-border)">
+        <h2 className={`text-base font-semibold tracking-[-0.015em] ${danger ? "text-(--color-red)" : ""}`}>
+          {title}
+        </h2>
+        <p className="text-[13px] text-(--color-text-dim) mt-1">{sub}</p>
+      </div>
+      <div className="px-6 py-6 flex flex-col gap-5">{children}</div>
     </section>
   );
 }
@@ -395,30 +410,18 @@ function ToggleRow({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex justify-between items-center py-4">
+    <div className="flex items-start justify-between gap-6">
       <div>
-        <div className="text-base font-semibold">{label}</div>
-        <div className="text-[13px] text-(--color-text-muted) mt-0.5">{sub}</div>
+        <h3 className="text-sm font-medium">{label}</h3>
+        <p className="text-[13px] text-(--color-text-dim) mt-0.5 leading-[1.5]">{sub}</p>
       </div>
       <button
         type="button"
         aria-pressed={value}
         onClick={() => onChange(!value)}
-        className={
-          "relative w-[52px] h-[30px] rounded-full cursor-pointer transition-colors border " +
-          (value
-            ? "bg-(--color-spotify) border-(--color-spotify)"
-            : "bg-(--color-surface-2) border-(--color-border-strong)")
-        }
-      >
-        <span
-          aria-hidden
-          className={
-            "absolute top-[3px] left-[3px] w-[22px] h-[22px] rounded-full bg-white transition-transform " +
-            (value ? "translate-x-[22px]" : "translate-x-0")
-          }
-        />
-      </button>
+        className="cr-switch flex-shrink-0 mt-0.5"
+        aria-label="Toggle notifications"
+      />
     </div>
   );
 }
