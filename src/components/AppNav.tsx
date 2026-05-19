@@ -28,7 +28,7 @@ export function AppNav({ activeHref }: AppNavProps) {
           Concert Radar
         </Link>
 
-        <nav className="flex gap-1 ml-6">
+        <nav className="hidden md:flex gap-1 ml-6">
           {LINKS.map((l) => {
             const active = activeHref === l.href;
             return (
