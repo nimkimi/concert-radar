@@ -9,7 +9,8 @@ A Spotify-connected concert discovery app that alerts users when artists they lo
 - **Spec (canonical):** [`nimkimi/project-ideas/projects/concert-radar.md`](https://github.com/nimkimi/project-ideas/blob/main/projects/concert-radar.md) including the 2026-05-15 Addendum.
 - **Spec (mirror):** [`SPEC.md`](./SPEC.md) in this repo.
 - **Plan:** [`PLAN.md`](./PLAN.md) — 15 PR-sized vertical-slice tasks (1, 2, 3, 4, 4.5, 5–14). Each task maps to one GitHub issue.
-- **Visual design:** [`design/`](./design/) — static HTML mockups + `design-tokens.md`. Open `design/index.html` to preview. Source of truth lives in `nimkimi/project-ideas/projects/concert-radar-design/`.
+- **Visual design (current — v2):** `nimkimi/project-ideas/projects/concert-radar-redesign/` — the `design-brief.md` is the brief, `v2/*.html` are the desktop mockups, `v2-mobile/*.html` are the mobile mockups. This supersedes the original `design/` folder, which contained the festival-poster v1 direction (rejected after MVP).
+- **Visual design (v1, historical):** [`design/`](./design/) — kept for archeology only. Do not port from these mockups.
 
 If `SPEC.md` and the project-ideas copy ever diverge, project-ideas wins.
 
@@ -19,7 +20,7 @@ This project was bootstrapped using `nimkimi/project-ideas/BUILD_PROCESS.md` and
 
 **TDD policy:** required for pure logic, crypto, and API response parsing. Optional for scaffolding and UI when Claude is ≥95% confident — announce `Skipping TDD for #N because <reason>` before proceeding.
 
-**UI policy:** for UI-flavored issues, invoke `frontend-design` and faithfully port the corresponding mockup in `design/` into Next.js components. `design/design-tokens.md` is the canonical spec for colors, type scale, spacing, motion, and Tailwind theme extension.
+**UI policy:** for UI-flavored issues, invoke `frontend-design` and faithfully port the corresponding mockup from `concert-radar-redesign/v2/` (desktop) or `concert-radar-redesign/v2-mobile/` (mobile) into Next.js components. The canonical design system is now encoded directly in `src/app/globals.css` (`@theme` block + `[data-theme="dark"]` overrides) — read the tokens from there. The legacy `design/design-tokens.md` is preserved as v1 history only.
 
 **Verification before merge:** invoke `superpowers:verification-before-completion`.
 
@@ -31,11 +32,17 @@ This repo is **private** (flipped 2026-05-18 after first prod deploy). This is t
 - Anyone needing access must be added via GitHub Settings → Collaborators
 - Vercel's GitHub integration is OAuth-based and continues to deploy automatically
 
-## Current state — MVP complete (2026-05-16)
+## Current state — v2 redesign + mobile shipped (2026-05-19)
 
-All 15 plan tasks merged to `main`. 29 of 30 DoD checkboxes ticked in [SPEC.md](./SPEC.md); the one open item ([#44](https://github.com/nimkimi/concert-radar/issues/44)) is cosmetic dashboard polish.
+**MVP** complete 2026-05-16 (all 15 plan tasks merged). 29 of 30 DoD checkboxes ticked in [SPEC.md](./SPEC.md); the one open item ([#44](https://github.com/nimkimi/concert-radar/issues/44)) is cosmetic dashboard polish.
 
-See [PLAN.md → Status](./PLAN.md#status--mvp-complete-2026-05-16) for the task-by-task breakdown, and [PLAN.md → Post-MVP follow-ups](./PLAN.md#post-mvp-follow-ups) for the 14 tech-debt issues tracking MVP shortcuts (each has the reason it was acceptable + a suggested fix).
+**Phase B — v2 design rebuild** shipped 2026-05-18 ([#52](https://github.com/nimkimi/concert-radar/pull/52)). Replaced the festival-poster v1 look with the quieter v2 system — light + dark mode (persisted toggle, system-pref fallback), Geist Sans, Spotify green as a sparing accent only. Every surface rebuilt: landing (full marketing page with hero video + previews), dashboard (hero next-concert + time-horizon groups), artists, concert detail, settings, and both email templates.
+
+**Mobile port** shipped 2026-05-19 ([#55](https://github.com/nimkimi/concert-radar/pull/55)). Bottom tab bar nav below `md` (768px), top nav hidden, stacked layouts, full-width touch targets, always-visible exclude buttons. Pure Tailwind responsive utilities + one new `<MobileTabBar>` client component — no JS breakpoint detection, no SSR concerns. Dashboard layout in `src/app/dashboard/layout.tsx` is the single insertion point.
+
+**Phase A** (issue [#51](https://github.com/nimkimi/concert-radar/issues/51) — location-not-set silent radius bypass) is still open. The dashboard currently shows cross-country events with no filter when a new user hasn't set their city. Small, isolated PR to follow.
+
+See [PLAN.md → Post-MVP follow-ups](./PLAN.md#post-mvp-follow-ups) for the open tech-debt issues. Phase C (artist source transparency — adds the `TrackedArtist.source` schema field for Top tier / Followed / Saved albums grouping on the Artists page) is the next planned vertical-slice piece of work.
 
 **Tests:** 123 passing across 17 files. Run with `npm test`. `npm run build` clean.
 
@@ -47,7 +54,8 @@ See [PLAN.md → Status](./PLAN.md#status--mvp-complete-2026-05-16) for the task
 ## Tech stack
 
 - Next.js 16 (App Router) · TypeScript strict
-- Tailwind CSS v4 · Inter font · dark mode only
+- Tailwind CSS v4 · Geist Sans · light + dark mode (toggle persisted to localStorage, `prefers-color-scheme` fallback)
+- Responsive: single `md` breakpoint (768px) splits desktop nav vs bottom tab bar. See `src/components/MobileTabBar.tsx`.
 - Prisma 6 + SQLite locally / **Turso (libsql)** in prod via the `@prisma/adapter-libsql` driver adapter — same schema dialect, runtime swap in `src/lib/db.ts`
 - NextAuth v5 with Spotify OAuth + custom AES-GCM encrypted-token adapter
 - Vitest (unit + integration with recorded fixtures)
