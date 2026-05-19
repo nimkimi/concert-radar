@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 
@@ -13,6 +13,18 @@ export const metadata: Metadata = {
   title: "Concert Radar — Never miss a show again.",
   description:
     "Spotify-connected concert alerts. Get notified when your artists play near you.",
+};
+
+// viewport-fit=cover lets the bottom tab bar honor iOS safe-area-inset-bottom
+// so the home indicator doesn't overlap our nav.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf9f6" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
 };
 
 // Inlined as an unminified function string so Next can inject it without React

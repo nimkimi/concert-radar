@@ -191,7 +191,7 @@ export function SettingsForm({ initial }: { initial: SettingsInitial }) {
 
         <div className="flex flex-col gap-1.5 mt-5">
           <label className="text-[13px] font-medium text-(--color-text-soft)">Radius</label>
-          <div className="flex gap-1 p-1 bg-(--color-bg-subtle) rounded-xl">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-1 p-1 bg-(--color-bg-subtle) rounded-xl">
             {RADIUS_OPTIONS.map((opt) => {
               const active = radius === opt.value;
               return (

@@ -36,7 +36,7 @@ export function ExcludeToggle({
   // When not excluded, only revealed on the parent card's hover state.
   const variant = excluded
     ? "border border-(--color-green) text-(--color-green) bg-(--color-green-soft)"
-    : "border border-(--color-border) text-(--color-text-dim) bg-(--color-bg-subtle) hover:border-(--color-border-strong) hover:text-(--color-text) opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100";
+    : "border border-(--color-border) text-(--color-text-dim) bg-(--color-bg-subtle) hover:border-(--color-border-strong) hover:text-(--color-text) opacity-100 scale-100 md:opacity-0 md:scale-90 md:group-hover:opacity-100 md:group-hover:scale-100";
 
   return (
     <button

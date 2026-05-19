@@ -113,7 +113,7 @@ export default async function LandingPage() {
             Connect your Spotify, set your city, and we&apos;ll email you when artists you love
             announce a concert near you. No browsing, no algorithms, no spam.
           </p>
-          <div className="flex gap-3 justify-center items-center flex-wrap">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
             <SignInButton />
             <a
               href="#how"

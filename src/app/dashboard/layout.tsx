@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth/nextauth";
+import { MobileTabBar } from "@/components/MobileTabBar";
 
 export default async function DashboardLayout({
   children,
@@ -8,5 +9,12 @@ export default async function DashboardLayout({
 }) {
   const session = await auth();
   if (!session?.user) redirect("/");
-  return <>{children}</>;
+  return (
+    // Bottom padding leaves room for the fixed MobileTabBar on phones; on
+    // md+ the tab bar is hidden so padding collapses to 0.
+    <div className="pb-24 md:pb-0">
+      {children}
+      <MobileTabBar />
+    </div>
+  );
 }

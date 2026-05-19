@@ -171,7 +171,7 @@ export default async function ConcertDetailPage({
               ))}
             </div>
 
-            <div className="flex gap-2.5 flex-wrap mb-6">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 mb-6">
               {winnerRow.ticketUrl ? (
                 <a
                   href={winnerRow.ticketUrl}
