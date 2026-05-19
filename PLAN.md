@@ -22,6 +22,18 @@ Total tests: **123 passing** across 17 files. `npm run build` clean. 14 routes r
 
 See [Post-MVP follow-ups](#post-mvp-follow-ups) at the bottom for the 14 tech-debt / post-MVP issues filed during MVP execution — each documents an MVP shortcut, why it was acceptable to ship without it, and the suggested clean fix.
 
+### Post-MVP delivered (after 2026-05-16)
+
+Tracked separately from the 15 vertical-slice tasks above:
+
+- **Phase B — v2 redesign** (PR [#52](https://github.com/nimkimi/concert-radar/pull/52), 2026-05-18). Replaced the v1 festival-poster look with the v2 system (light + dark mode toggle, Geist Sans, Spotify green as sparing accent only). All surfaces rebuilt: landing (multi-section marketing page with looping hero video + dashboard/email previews using real Wikimedia Commons artist photos), dashboard (hero next-concert card + time-horizon-grouped tight cards), artists, concert detail, settings, and both email templates. Brief at `nimkimi/project-ideas/projects/concert-radar-redesign/design-brief.md`; mockups in `v2/`.
+- **Mobile port** (PR [#55](https://github.com/nimkimi/concert-radar/pull/55), 2026-05-19). Single `md` (768px) breakpoint splits desktop nav from a bottom tab bar (`src/components/MobileTabBar.tsx`, fixed-bottom, blurred backdrop, `safe-area-inset-bottom` for iOS home indicator). Pages adapt with pure Tailwind responsive utilities — stacked layouts, full-width touch targets, always-visible exclude buttons. Mockups in `v2-mobile/`.
+
+### Still planned
+
+- **Phase A** ([#51](https://github.com/nimkimi/concert-radar/issues/51)) — fix the silent radius bypass when a new user has no city set. Single-PR follow-up.
+- **Phase C** — Artist source transparency. Add `TrackedArtist.source` schema field + Spotify-sync upserts it + the Artists page groups by Top tier / Followed / Saved albums (the disclosure stub is already on the page).
+
 ---
 
 ## File structure
@@ -32,7 +44,7 @@ concert-radar/
 │   └── schema.prisma                 # all tables
 ├── src/
 │   ├── app/
-│   │   ├── layout.tsx                # root layout, dark theme, Inter
+│   │   ├── layout.tsx                # root layout, Geist Sans, light+dark theme bootstrap
 │   │   ├── page.tsx                  # landing / "Connect with Spotify"
 │   │   ├── api/
 │   │   │   ├── auth/[...nextauth]/route.ts

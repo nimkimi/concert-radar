@@ -1,4 +1,8 @@
-# Concert Radar — Design Tokens
+# Concert Radar — Design Tokens (v1, HISTORICAL)
+
+> ⚠️ **Superseded by v2 (shipped 2026-05-18).** This file describes the v1 festival-poster look that was rejected after MVP. The current canonical token set lives in `src/app/globals.css` (the `@theme` block + `[data-theme="dark"]` overrides). v2 mockups are at `nimkimi/project-ideas/projects/concert-radar-redesign/v2/` (desktop) and `v2-mobile/` (mobile); the design brief is at `concert-radar-redesign/design-brief.md`. Do not port from the file below.
+
+---
 
 **Mode:** Festival-poster maximalism, dark only.
 **Companion to:** the static HTML mockups in this folder. Tokens here drive `style.css`. When implementing in Next.js + Tailwind, extend the theme with these values.
