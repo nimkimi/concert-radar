@@ -22,7 +22,7 @@ This project was bootstrapped using `nimkimi/project-ideas/BUILD_PROCESS.md` and
 
 **UI policy:** for UI-flavored issues, invoke `frontend-design` and faithfully port the corresponding mockup from `concert-radar-redesign/v2/` (desktop) or `concert-radar-redesign/v2-mobile/` (mobile) into Next.js components. The canonical design system is now encoded directly in `src/app/globals.css` (`@theme` block + `[data-theme="dark"]` overrides) — read the tokens from there. The legacy `design/design-tokens.md` is preserved as v1 history only.
 
-**Verification before merge:** invoke `superpowers:verification-before-completion`.
+**Verification before merge:** run the verification commands (tests, build, lint) and read their output before claiming success or merging.
 
 ## Repo visibility
 
